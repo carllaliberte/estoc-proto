@@ -111,7 +111,11 @@ function remember(text){
   persist();
 }
 function currentBot(){return BOTS[Math.min(state.ladder,BOTS.length-1)];}
-function setMask(el,line){if(!el)return;el.className="mask "+(el.classList.contains("mini")?"mini":el.classList.contains("big")?"big":"mid")+" "+line;}
+function setMask(el,line){
+  if(!el)return;
+  const size=el.classList.contains("mini")?"mini":el.classList.contains("big")?"big":"mid";
+  el.className="mask "+size+" "+line;
+}
 
 function renderTraits(){
   const box=document.getElementById("traits");
@@ -257,7 +261,9 @@ function resolve(pDef,bDef){
   state.hp=Math.max(0,state.hp-bHit);
   if(pHit)flash("foe");
   if(bHit)flash("you");
-  return state.name+" "+pNote+(pHit?" — "+pHit+". ":". ")+bDef.name===bNote?currentBot().name+" "+bNote+(bHit?" — "+bHit+".":" ."):currentBot().name+" "+bNote+(bHit?" — "+bHit+".":" .");
+  const left=state.name+" "+pNote+(pHit?" — "+pHit+". ":". ");
+  const right=currentBot().name+" "+bNote+(bHit?" — "+bHit+".":".");
+  return left+right;
 }
 function playerSkill(id){
   if(!state.live||state.busy)return;
@@ -304,7 +310,7 @@ function doAct(act){
   if(state.gestures<=0){show("shop");return;}
   state.gestures-=1;
   if(act==="heal")state.wounded=false;
-  if(act==="drill"){state.elanYou=20;remember("Morning drill held");}
+  if(act==="drill"){remember("Morning drill held");}
   document.getElementById("campLine").textContent=act==="talk"?phraseCamp():act==="drill"?"Drill held. Opening comes sooner.":"The steel quiets. Rust off.";
   document.getElementById("campActions").textContent="Gestures "+state.gestures+"/"+gestureCap();
   document.getElementById("campRust").textContent=state.wounded?"Rust":"";
