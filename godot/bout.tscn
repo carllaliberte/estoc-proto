@@ -1,0 +1,143 @@
+[gd_scene load_steps=2 format=3 uid="uid://estocbout01"]
+
+[ext_resource type="Script" path="res://bout.gd" id="1_bout"]
+
+[node name="Bout" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_bout")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.055, 0.07, 1)
+
+[node name="Hud" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+
+[node name="YouHp" type="Label" parent="Hud"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 80.0
+offset_bottom = 40.0
+text = "100"
+
+[node name="Timer" type="Label" parent="Hud"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -30.0
+offset_top = 12.0
+offset_right = 30.0
+offset_bottom = 40.0
+text = "1:30"
+horizontal_alignment = 1
+
+[node name="FoeHp" type="Label" parent="Hud"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 40.0
+text = "100"
+horizontal_alignment = 2
+
+[node name="Yard" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 56.0
+offset_bottom = -220.0
+
+[node name="You" type="ColorRect" parent="Yard"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 180.0
+offset_right = 108.0
+offset_bottom = 300.0
+color = Color(0.77, 0.65, 0.45, 1)
+
+[node name="Foe" type="ColorRect" parent="Yard"]
+layout_mode = 0
+offset_left = 262.0
+offset_top = 180.0
+offset_right = 342.0
+offset_bottom = 300.0
+color = Color(0.55, 0.58, 0.66, 1)
+
+[node name="Tell" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -210.0
+offset_bottom = -170.0
+text = "Watch the mask."
+horizontal_alignment = 1
+
+[node name="Window" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -164.0
+offset_right = -16.0
+offset_bottom = -158.0
+color = Color(0.12, 0.13, 0.16, 1)
+
+[node name="Fill" type="ColorRect" parent="Window"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+pivot_offset = Vector2(0, 0)
+color = Color(0.83, 0.69, 0.48, 1)
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -140.0
+offset_right = -12.0
+offset_bottom = -24.0
+theme_override_constants/separation = 8
+
+[node name="Cut" type="Button" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Line"
+
+[node name="Read" type="Button" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Measure"
+
+[node name="Kill" type="Button" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Opening"
+
+[connection signal="pressed" from="Row/Cut" to="." method="_on_cut"]
+[connection signal="pressed" from="Row/Read" to="." method="_on_read"]
+[connection signal="pressed" from="Row/Kill" to="." method="_on_kill"]
