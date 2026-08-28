@@ -23,6 +23,14 @@ var tell_left := 0.0
 func _ready() -> void:
 	start_bout()
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("cut"):
+		answer("cut")
+	elif event.is_action_pressed("read"):
+		answer("read")
+	elif event.is_action_pressed("kill"):
+		answer("kill")
+
 func start_bout() -> void:
 	hp = 100.0
 	foe = 100.0
