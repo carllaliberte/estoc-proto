@@ -63,9 +63,8 @@ func _wire_buttons() -> void:
 	for pair in [[btn_cut, "cut"], [btn_read, "read"], [btn_kill, "kill"]]:
 		var b: Button = pair[0]
 		var kind: String = pair[1]
-		if b.pressed.is_connected(_on_cut) or b.pressed.get_connections().size() > 0:
-			for c in b.pressed.get_connections():
-				b.pressed.disconnect(c.callable)
+		for c in b.pressed.get_connections():
+			b.pressed.disconnect(c.callable)
 		b.button_down.connect(_on_hold_start.bind(kind))
 		b.button_up.connect(_on_hold_end.bind(kind))
 
