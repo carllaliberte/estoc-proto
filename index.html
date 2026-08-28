@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estoc</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <section class="screen on" id="splash">
+      <div class="hero"></div>
+      <div class="pad">
+        <p class="kicker">New Hall</p>
+        <h1>Estoc</h1>
+        <p class="lede">Raise. Send.</p>
+        <button class="btn solid" data-go="consent">Continue with Apple</button>
+        <p class="notice">14-day proto. No token in this yard.</p>
+      </div>
+    </section>
+    <section class="screen" id="consent">
+      <div class="pad" style="padding-top:56px">
+        <p class="kicker">Artificial intelligence</p>
+        <h2>Champion lines</h2>
+        <p class="lede">Estoc uses written champion lines in this proto. Three memories stay on this phone — not your name, not a wallet.</p>
+        <p class="lede" style="margin-top:12px">You can duel without those lines.</p>
+        <button class="btn solid" id="allowAi">Allow AI lines</button>
+        <button class="btn ghost" id="denyAi">Play without AI lines</button>
+      </div>
+    </section>
+    <section class="screen" id="create">
+      <div class="pad" style="overflow:auto">
+        <p class="kicker">Create</p>
+        <h2>Three steels. One leaves.</h2>
+        <div class="cards">
+          <button class="card pick on" data-line="pointe"><img alt="Point" /><div><h3>Point</h3><p>One line. The right one.</p></div></button>
+          <button class="card pick" data-line="taille"><img alt="Edge" /><div><h3>Edge</h3><p>If they step back, it is already over.</p></div></button>
+          <button class="card pick" data-line="garde"><img alt="Guard" /><div><h3>Guard</h3><p>They will tire first.</p></div></button>
+        </div>
+        <p class="tiny">Three traits. No more.</p>
+        <div class="traits" id="traits"></div>
+        <input class="name" id="name" maxlength="12" value="Linen" />
+        <button class="btn solid" id="enter">Enter camp</button>
+      </div>
+    </section>
+    <section class="screen" id="camp">
+      <div class="camp-art" id="campArt"></div>
+      <div class="pad" style="flex:1">
+        <p class="kicker" id="campMeta">Point</p>
+        <h2 id="campName">Linen</h2>
+        <p class="statline"><span id="campActions">Gestures 3/3</span><span id="campStreak">Dawn</span></p>
+        <p class="statline"><span id="campQueue">Send ready</span><span id="campRust" class="rust"></span></p>
+        <p class="tiny" id="aiTag">AI</p>
+        <p class="bubble" id="campLine">I am ready.</p>
+        <div class="row">
+          <button class="btn" data-act="talk">Talk</button>
+          <button class="btn" data-act="drill">Drill</button>
+          <button class="btn" data-act="heal">Tend</button>
+        </div>
+        <button class="btn solid" id="sendBtn" data-go="duel">Send</button>
+      </div>
+      <nav class="tabs">
+        <button class="tab on" data-tab="camp">Camp</button>
+        <button class="tab" data-tab="fiche">Estoc</button>
+        <button class="tab" data-tab="shop">Shop</button>
+        <button class="tab" data-tab="toi">You</button>
+      </nav>
+    </section>
+    <section class="screen" id="duel">
+      <div class="duel">
+        <div class="fighters">
+          <figure>
+            <img id="youImg" alt="" />
+            <figcaption id="youLabel">You</figcaption>
+            <div class="bar hp"><i id="youHp"></i></div>
+            <div class="bar elan"><i id="youElan"></i></div>
+          </figure>
+          <figure>
+            <img id="foeImg" alt="" />
+            <figcaption id="foeLabel">Newsteel</figcaption>
+            <div class="bar hp"><i id="foeHp"></i></div>
+            <div class="bar elan"><i id="foeElan"></i></div>
+          </figure>
+        </div>
+        <p class="timer" id="timer">8:00</p>
+        <p class="tiny" id="habit">Habit</p>
+        <p class="log" id="log"></p>
+        <div class="skills" id="skills"></div>
+      </div>
+    </section>
+    <section class="screen" id="result">
+      <div class="pad" style="padding-top:72px">
+        <p class="kicker">Return</p>
+        <h1 id="resTitle">Victory</h1>
+        <p class="lede" id="resLine"></p>
+        <p class="tiny" id="resMem"></p>
+        <button class="btn solid" data-go="camp">See you at dawn</button>
+        <button class="btn ghost" id="sendAgain">Send again</button>
+      </div>
+    </section>
+    <section class="screen" id="fiche">
+      <div class="pad" style="padding-top:48px;overflow:auto">
+        <p class="kicker" id="ficheMeta">Champion</p>
+        <h2 id="ficheName">Memory</h2>
+        <p class="lede">Three facts. Not the transcript.</p>
+        <div id="memList"></div>
+        <p class="tiny" style="margin:16px 0 8px">Ladder</p>
+        <ul id="ladderList" class="ladder"></ul>
+        <button class="btn" data-go="camp">Camp</button>
+      </div>
+    </section>
+    <section class="screen" id="shop">
+      <div class="pad" style="padding-top:48px;overflow:auto">
+        <p class="kicker">StoreKit</p>
+        <h2>Shop</h2>
+        <div class="shop-item"><div>Plus monthly<br><span class="tiny">8 gestures / day</span></div><span class="price">$7.99</span></div>
+        <div class="shop-item"><div>Plus yearly</div><span class="price">$59.99</span></div>
+        <div class="shop-item"><div>Credits</div><span class="price">$4.99–$39.99</span></div>
+        <p class="notice">Prototype. Nothing is billed. No wallet.</p>
+        <button class="btn" data-go="camp">Camp</button>
+      </div>
+    </section>
+    <section class="screen" id="toi">
+      <div class="pad" style="padding-top:48px">
+        <p class="kicker">Estoc account</p>
+        <h2>You</h2>
+        <p class="lede">Portable ID.</p>
+        <p class="notice" id="youStats">Free · streak 0</p>
+        <p class="notice">The $ESTOC token is not in this app.</p>
+        <button class="btn" id="copyReport">Copy 14-day report</button>
+        <button class="btn dev-only" id="togglePlus">Proto: toggle Plus</button>
+        <button class="btn dev-only" id="skipDawn">Proto: next dawn</button>
+        <button class="btn" data-go="camp">Camp</button>
+        <button class="btn ghost" id="wipe">Erase proto save</button>
+      </div>
+    </section>
+  </div>
+  <script src="assets.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
