@@ -1,10 +1,8 @@
-# Grok — Estoc (Carl Laliberté)
+# Grok — Estoc
 
-Look bible: cracked black plate, ochre scarf, ember eyes, fire hall.
-Not olympic white kit. Not mesh fencing mask. Not Godot.
-
-Live: https://carllaliberte.github.io/estoc-proto/
-Play: open index.html. English in the game. French with Carl.
-
-Bout: 0.85s tell, Line / Measure / Opening. HP ends the fight.
-No token. No second game.
+Lis PLAYBOOK.md avant de toucher au code.
+Le jeu est GitHub Pages: https://carllaliberte.github.io/estoc-proto/
+index.html = le jeu. Pas Godot. Pas de token.
+Look: chevalier feu, écharpe ocre, yeux orange.
+Combat: 0.85s tell, Line / Measure / Opening.
+English in the game. French with Carl.
