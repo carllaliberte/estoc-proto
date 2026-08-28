@@ -137,7 +137,3 @@ text = "Measure\nS"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Opening\nD"
-
-[connection signal="pressed" from="Row/Cut" to="." method="_on_cut"]
-[connection signal="pressed" from="Row/Read" to="." method="_on_read"]
-[connection signal="pressed" from="Row/Kill" to="." method="_on_kill"]
