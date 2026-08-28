@@ -2,6 +2,14 @@ extends Control
 
 const WINDOW := 0.85
 const BOUT := 90.0
+const HOLD_MS := 450
+const SAVE_PATH := "user://estoc_inputs.cfg"
+const NAMES := {"cut": "Line", "read": "Measure", "kill": "Opening"}
+const DEFAULTS := {
+	"cut": {"keys": [KEY_A, KEY_LEFT, KEY_1, KEY_Q], "joy": JOY_BUTTON_X},
+	"read": {"keys": [KEY_S, KEY_DOWN, KEY_2, KEY_W], "joy": JOY_BUTTON_A},
+	"kill": {"keys": [KEY_D, KEY_RIGHT, KEY_3, KEY_E], "joy": JOY_BUTTON_B}
+}
 
 var hp := 100.0
 var foe := 100.0
@@ -11,6 +19,10 @@ var tell_open := false
 var answered := false
 var incoming := ""
 var tell_left := 0.0
+var listen_for := ""
+var hold_kind := ""
+var hold_ms := 0
+var last_device := "touch"
 
 @onready var you_mask: ColorRect = $Yard/You
 @onready var foe_mask: ColorRect = $Yard/Foe
@@ -19,17 +31,22 @@ var tell_left := 0.0
 @onready var tell_lbl: Label = $Tell
 @onready var bar: ColorRect = $Window/Fill
 @onready var timer_lbl: Label = $Hud/Timer
+@onready var btn_cut: Button = $Row/Cut
+@onready var btn_read: Button = $Row/Read
+@onready var btn_kill: Button = $Row/Kill
 
 func _ready() -> void:
-	_bind_inputs()
+	_bind_defaults()
+	_load_binds()
+	_wire_buttons()
+	_refresh_labels()
 	start_bout()
 
-func _bind_inputs() -> void:
-	_map("cut", [KEY_A, KEY_LEFT, KEY_1, KEY_Q], JOY_BUTTON_X)
-	_map("read", [KEY_S, KEY_DOWN, KEY_2, KEY_W], JOY_BUTTON_A)
-	_map("kill", [KEY_D, KEY_RIGHT, KEY_3, KEY_E], JOY_BUTTON_B)
+func _bind_defaults() -> void:
+	for action in DEFAULTS.keys():
+		_set_action(action, DEFAULTS[action]["keys"], DEFAULTS[action]["joy"])
 
-func _map(action: String, keys: Array, joy: int) -> void:
+func _set_action(action: String, keys: Array, joy: int) -> void:
 	if not InputMap.has_action(action):
 		InputMap.add_action(action)
 	else:
@@ -42,14 +59,123 @@ func _map(action: String, keys: Array, joy: int) -> void:
 	pad.button_index = joy
 	InputMap.action_add_event(action, pad)
 
+func _wire_buttons() -> void:
+	for pair in [[btn_cut, "cut"], [btn_read, "read"], [btn_kill, "kill"]]:
+		var b: Button = pair[0]
+		var kind: String = pair[1]
+		if b.pressed.is_connected(_on_cut) or b.pressed.get_connections().size() > 0:
+			for c in b.pressed.get_connections():
+				b.pressed.disconnect(c.callable)
+		b.button_down.connect(_on_hold_start.bind(kind))
+		b.button_up.connect(_on_hold_end.bind(kind))
+
+func _on_hold_start(kind: String) -> void:
+	hold_kind = kind
+	hold_ms = Time.get_ticks_msec()
+
+func _on_hold_end(kind: String) -> void:
+	if hold_kind != kind:
+		return
+	var held := Time.get_ticks_msec() - hold_ms
+	hold_kind = ""
+	if listen_for != "":
+		return
+	if held >= HOLD_MS:
+		listen_for = kind
+		last_device = "touch"
+		tell_lbl.text = "Next key or pad binds " + NAMES[kind] + "."
+	else:
+		last_device = "touch"
+		answer(kind)
+
+func _input(event: InputEvent) -> void:
+	if listen_for == "":
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		_assign_key(listen_for, event.physical_keycode)
+		get_viewport().set_input_as_handled()
+	elif event is InputEventJoypadButton and event.pressed:
+		_assign_joy(listen_for, event.button_index)
+		get_viewport().set_input_as_handled()
+
+func _assign_key(action: String, code: int) -> void:
+	last_device = "keyboard"
+	var joy := _joy_of(action)
+	_set_action(action, [code], joy)
+	_finish_bind(action)
+
+func _assign_joy(action: String, joy: int) -> void:
+	last_device = "pad"
+	var keys := _keys_of(action)
+	if keys.is_empty():
+		keys = DEFAULTS[action]["keys"]
+	_set_action(action, keys, joy)
+	_finish_bind(action)
+
+func _finish_bind(action: String) -> void:
+	listen_for = ""
+	_save_binds()
+	_refresh_labels()
+	tell_lbl.text = NAMES[action] + " bound. Watch the mask."
+
+func _keys_of(action: String) -> Array:
+	var out: Array = []
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventKey:
+			out.append(ev.physical_keycode)
+	return out
+
+func _joy_of(action: String) -> int:
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventJoypadButton:
+			return ev.button_index
+	return int(DEFAULTS[action]["joy"])
+
+func _hint(action: String) -> String:
+	if last_device == "pad":
+		return "pad " + str(_joy_of(action))
+	var keys := _keys_of(action)
+	if keys.is_empty():
+		return "—"
+	return OS.get_keycode_string(keys[0])
+
+func _refresh_labels() -> void:
+	btn_cut.text = "Line\n" + _hint("cut")
+	btn_read.text = "Measure\n" + _hint("read")
+	btn_kill.text = "Opening\n" + _hint("kill")
+
+func _save_binds() -> void:
+	var cfg := ConfigFile.new()
+	for action in ["cut", "read", "kill"]:
+		var keys := _keys_of(action)
+		cfg.set_value(action, "key", keys[0] if keys.size() else 0)
+		cfg.set_value(action, "joy", _joy_of(action))
+	cfg.save(SAVE_PATH)
+
+func _load_binds() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(SAVE_PATH) != OK:
+		return
+	for action in ["cut", "read", "kill"]:
+		var key := int(cfg.get_value(action, "key", 0))
+		var joy := int(cfg.get_value(action, "joy", DEFAULTS[action]["joy"]))
+		var keys: Array = [key] if key != 0 else DEFAULTS[action]["keys"]
+		_set_action(action, keys, joy)
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_echo():
+	if listen_for != "" or event.is_echo():
 		return
 	if event.is_action_pressed("cut"):
+		last_device = "pad" if event is InputEventJoypadButton else "keyboard"
+		_refresh_labels()
 		answer("cut")
 	elif event.is_action_pressed("read"):
+		last_device = "pad" if event is InputEventJoypadButton else "keyboard"
+		_refresh_labels()
 		answer("read")
 	elif event.is_action_pressed("kill"):
+		last_device = "pad" if event is InputEventJoypadButton else "keyboard"
+		_refresh_labels()
 		answer("kill")
 
 func start_bout() -> void:
@@ -60,7 +186,7 @@ func start_bout() -> void:
 	tell_open = false
 	you_mask.position.x = 28.0
 	foe_mask.position.x = 262.0
-	tell_lbl.text = "Watch the mask."
+	tell_lbl.text = "Watch the mask. Hold a button to rebind."
 	_paint()
 	await get_tree().create_timer(0.5).timeout
 	_open_tell()
@@ -80,7 +206,7 @@ func _process(dt: float) -> void:
 			_resolve("", incoming)
 
 func _open_tell() -> void:
-	if not live:
+	if not live or listen_for != "":
 		return
 	var roll := randf()
 	if roll < 0.45:
@@ -97,7 +223,7 @@ func _open_tell() -> void:
 	tell_lbl.text = "Newsteel: " + word
 
 func answer(kind: String) -> void:
-	if not live:
+	if not live or listen_for != "":
 		return
 	if tell_open and not answered:
 		answered = true
@@ -159,12 +285,3 @@ func _paint() -> void:
 func _end(win: bool) -> void:
 	live = false
 	tell_lbl.text = "Victory." if win else "Defeat. Still standing."
-
-func _on_cut() -> void:
-	answer("cut")
-
-func _on_read() -> void:
-	answer("read")
-
-func _on_kill() -> void:
-	answer("kill")
