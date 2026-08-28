@@ -1,13 +1,14 @@
 # Inputs
 
-Tap = answer. Hold ~0.45s on Line / Measure / Opening = listen. Next key or pad button binds that answer. Saved in `user://estoc_inputs.cfg`.
+Tap = answer. Hold 0.45s = rebind. Pad plugs in: name shows on the tell.
 
-Labels switch with the last device (touch / keyboard / pad).
+## Pad (Xbox layout)
 
-Defaults if you never rebind:
+| Answer | Face | D-pad | Shoulder | Stick flick |
+|---|---|---|---|---|
+| Line | X | Left | LB | Left |
+| Measure | A | Down | | Down |
+| Opening | B | Right | RB | Right |
 
-| Answer | Keys | Pad |
-|---|---|---|
-| Line (cut) | A ← 1 Q | X |
-| Measure (read) | S ↓ 2 W | A |
-| Opening (kill) | D → 3 E | B |
+Stick deadzone 0.62 in, 0.35 out — one answer per flick. Hit rumble on the first pad.
+PlayStation: Square / Cross / Circle = X / A / B.
