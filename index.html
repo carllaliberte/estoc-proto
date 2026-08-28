@@ -2,62 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Estoc</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="app">
     <section class="screen on" id="splash">
-      <div class="hero"></div>
+      <div class="hero">
+        <div class="mask big pointe"></div>
+      </div>
       <div class="pad">
         <p class="kicker">New Hall</p>
         <h1>Estoc</h1>
-        <p class="lede">Raise. Send.</p>
-        <button class="btn solid" data-go="consent">Continue with Apple</button>
-        <p class="notice">One champion. Eight minutes. Tomorrow they remember.</p>
+        <p class="lede">Raise a champion. Send them. Eight minutes. They remember tomorrow.</p>
+        <button class="btn solid" data-go="consent">Enter the hall</button>
       </div>
     </section>
+
     <section class="screen" id="consent">
       <div class="pad" style="padding-top:56px">
-        <p class="kicker">Artificial intelligence</p>
-        <h2>Champion lines</h2>
-        <p class="lede">Some lines are written for your champion from three traits and three memories kept on this phone. Not your name. Not your purchases.</p>
-        <p class="lede" style="margin-top:12px">You can duel without those lines.</p>
-        <button class="btn solid" id="allowAi">Allow AI lines</button>
-        <button class="btn ghost" id="denyAi">Play without AI lines</button>
+        <p class="kicker">Lines</p>
+        <h2>A few words from the steel</h2>
+        <p class="lede">Optional lines use three traits kept on this phone. Not your name. Not your purchases.</p>
+        <button class="btn solid" id="allowAi">Allow lines</button>
+        <button class="btn ghost" id="denyAi">Play silent</button>
       </div>
     </section>
+
     <section class="screen" id="create">
       <div class="pad" style="overflow:auto">
         <p class="kicker">Create</p>
-        <h2>Three steels. One leaves.</h2>
+        <h2>Pick a steel. Then send.</h2>
         <div class="cards">
-          <button class="card pick on" data-line="pointe"><img alt="Point" /><div><h3>Point</h3><p>One line. The right one.</p></div></button>
-          <button class="card pick" data-line="taille"><img alt="Edge" /><div><h3>Edge</h3><p>If they step back, it is already over.</p></div></button>
-          <button class="card pick" data-line="garde"><img alt="Guard" /><div><h3>Guard</h3><p>They will tire first.</p></div></button>
+          <button class="card pick on" data-line="pointe"><span class="mask mini pointe"></span><div><h3>Point</h3><p>One line. The right one.</p></div></button>
+          <button class="card pick" data-line="taille"><span class="mask mini taille"></span><div><h3>Edge</h3><p>If they step back, it is already over.</p></div></button>
+          <button class="card pick" data-line="garde"><span class="mask mini garde"></span><div><h3>Guard</h3><p>They will tire first.</p></div></button>
         </div>
-        <p class="tiny">Three traits. No more.</p>
+        <p class="tiny">Three traits. Change them if you want.</p>
         <div class="traits" id="traits"></div>
         <input class="name" id="name" maxlength="12" value="Linen" />
         <button class="btn solid" id="enter">Enter camp</button>
       </div>
     </section>
+
     <section class="screen" id="camp">
-      <div class="camp-art" id="campArt"></div>
+      <div class="camp-art"><div class="mask mid" id="campMask"></div></div>
       <div class="pad" style="flex:1">
         <p class="kicker" id="campMeta">Point</p>
         <h2 id="campName">Linen</h2>
         <p class="statline"><span id="campActions">Gestures 3/3</span><span id="campStreak">Dawn</span></p>
-        <p class="statline"><span id="campQueue">Send ready</span><span id="campRust" class="rust"></span></p>
-        <p class="tiny" id="aiTag">AI</p>
-        <p class="bubble" id="campLine">I am ready.</p>
+        <p class="statline"><span id="campQueue">Yard open</span><span id="campRust" class="rust"></span></p>
+        <p class="bubble" id="campLine">Send me.</p>
         <div class="row">
           <button class="btn" data-act="talk">Talk</button>
           <button class="btn" data-act="drill">Drill</button>
           <button class="btn" data-act="heal">Tend</button>
         </div>
-        <button class="btn solid" id="sendBtn" data-go="duel">Send</button>
+        <button class="btn solid" id="sendBtn">Send</button>
       </div>
       <nav class="tabs">
         <button class="tab on" data-tab="camp">Camp</button>
@@ -66,30 +68,37 @@
         <button class="tab" data-tab="toi">You</button>
       </nav>
     </section>
+
     <section class="screen" id="duel">
       <div class="duel">
         <div class="fighters">
-          <figure>
-            <img id="youImg" alt="" />
+          <figure id="youFig">
+            <div class="mask mid" id="youMask"></div>
             <figcaption id="youLabel">You</figcaption>
+            <p class="hpn" id="youHpn">100</p>
             <div class="bar hp"><i id="youHp"></i></div>
             <div class="bar elan"><i id="youElan"></i></div>
           </figure>
-          <figure>
-            <img id="foeImg" alt="" />
+          <div class="vs">
+            <p class="timer" id="timer">8:00</p>
+            <p class="tiny" id="phase">Your move</p>
+          </div>
+          <figure id="foeFig">
+            <div class="mask mid" id="foeMask"></div>
             <figcaption id="foeLabel">Newsteel</figcaption>
+            <p class="hpn" id="foeHpn">100</p>
             <div class="bar hp"><i id="foeHp"></i></div>
             <div class="bar elan"><i id="foeElan"></i></div>
           </figure>
         </div>
-        <p class="timer" id="timer">8:00</p>
-        <p class="tiny" id="habit">Habit</p>
+        <p class="tiny" id="habit">Reads Line.</p>
         <p class="log" id="log"></p>
         <div class="skills" id="skills"></div>
       </div>
     </section>
+
     <section class="screen" id="result">
-      <div class="pad" style="padding-top:72px">
+      <div class="pad" style="padding-top:64px">
         <p class="kicker">Return</p>
         <h1 id="resTitle">Victory</h1>
         <p class="lede" id="resLine"></p>
@@ -98,9 +107,10 @@
         <button class="btn ghost" id="sendAgain">Send again</button>
       </div>
     </section>
+
     <section class="screen" id="fiche">
       <div class="pad" style="padding-top:48px;overflow:auto">
-        <p class="kicker" id="ficheMeta">Champion</p>
+        <p class="kicker">Champion</p>
         <h2 id="ficheName">Memory</h2>
         <p class="lede">Three facts. Not the transcript.</p>
         <div id="memList"></div>
@@ -109,6 +119,7 @@
         <button class="btn" data-go="camp">Camp</button>
       </div>
     </section>
+
     <section class="screen" id="shop">
       <div class="pad" style="padding-top:48px;overflow:auto">
         <p class="kicker">App Store</p>
@@ -116,17 +127,17 @@
         <div class="shop-item"><div>Plus monthly<br><span class="tiny">8 gestures / day</span></div><span class="price">$7.99</span></div>
         <div class="shop-item"><div>Plus yearly</div><span class="price">$59.99</span></div>
         <div class="shop-item"><div>Credits</div><span class="price">$4.99–$39.99</span></div>
-        <p class="notice">Prototype prices. Nothing is billed here.</p>
+        <p class="notice">Prototype. Nothing is billed here.</p>
         <button class="btn" data-go="camp">Camp</button>
       </div>
     </section>
+
     <section class="screen" id="toi">
       <div class="pad" style="padding-top:48px">
         <p class="kicker">Account</p>
         <h2>You</h2>
-        <p class="lede">Your champion stays with this phone for the test.</p>
+        <p class="lede">Champion stays on this phone for the test.</p>
         <p class="notice" id="youStats">Free · streak 0</p>
-        <p class="notice">Delete wipes memory on this device.</p>
         <button class="btn" id="copyReport">Copy 14-day report</button>
         <button class="btn dev-only" id="togglePlus">Toggle Plus</button>
         <button class="btn dev-only" id="skipDawn">Next dawn</button>
@@ -135,7 +146,6 @@
       </div>
     </section>
   </div>
-  <script src="assets.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
