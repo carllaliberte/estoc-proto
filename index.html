@@ -4,34 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Estoc</title>
+  <link rel="stylesheet" href="art.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="app">
     <section class="screen on" id="splash">
-      <div class="hero">
-        <div class="mask big pointe" id="splashMask"></div>
+      <div class="hero hall">
+        <div class="veil"></div>
       </div>
       <div class="pad">
         <p class="kicker">Hall</p>
         <h1>Estoc</h1>
         <p class="lede">Read the tell. Hit the window. Miss and you eat steel.</p>
         <button class="btn solid" id="playNow">Fight Newsteel</button>
-        <button class="btn ghost" id="toCreate">Pick another steel</button>
-      </div>
-    </section>
-
-    <section class="screen" id="create">
-      <div class="pad" style="overflow:auto;padding-top:48px">
-        <p class="kicker">Steel</p>
-        <h2>One leaves.</h2>
-        <div class="cards">
-          <button class="card pick on" data-line="pointe"><span class="mask mini pointe"></span><div><h3>Point</h3><p>Beat the window.</p></div></button>
-          <button class="card pick" data-line="taille"><span class="mask mini taille"></span><div><h3>Edge</h3><p>Cut when they breathe.</p></div></button>
-          <button class="card pick" data-line="garde"><span class="mask mini garde"></span><div><h3>Guard</h3><p>Take it. Give it back.</p></div></button>
-        </div>
-        <input class="name" id="name" maxlength="12" value="Linen" />
-        <button class="btn solid" id="enter">Fight</button>
       </div>
     </section>
 
@@ -41,42 +27,37 @@
         <span class="timer" id="timer">1:30</span>
         <span id="foeLabel">Newsteel</span>
       </div>
-      <div class="yard" id="yard">
+      <div class="yard hall" id="yard">
+        <div class="veil"></div>
         <div class="floater" id="floater"></div>
         <figure class="side you" id="youFig">
-          <div class="mask mid pointe" id="youMask"></div>
+          <div class="body you-art"></div>
           <p class="hpn" id="youHpn">100</p>
-          <div class="bar hp"><i id="youHp"></i></div>
+          <div class="bar"><i id="youHp"></i></div>
         </figure>
         <figure class="side foe" id="foeFig">
-          <div class="mask mid pointe" id="foeMask"></div>
+          <div class="body foe-art"></div>
           <p class="hpn" id="foeHpn">100</p>
-          <div class="bar hp"><i id="foeHp"></i></div>
+          <div class="bar"><i id="foeHp"></i></div>
         </figure>
       </div>
       <p class="tell" id="tell">Watch the mask.</p>
       <div class="window"><i id="windowBar"></i></div>
-      <div class="skills" id="skills"></div>
+      <div class="skills" id="skills">
+        <button data-s="cut">Line<small>Lunge now</small></button>
+        <button data-s="read">Measure<small>See the tell</small></button>
+        <button data-s="kill">Opening<small>Punish a miss</small></button>
+      </div>
     </section>
 
     <section class="screen" id="result">
-      <div class="pad" style="padding-top:72px">
+      <div class="hero mask-hero"></div>
+      <div class="pad">
         <p class="kicker" id="resKicker">Bout</p>
         <h1 id="resTitle">Victory</h1>
         <p class="lede" id="resLine"></p>
         <button class="btn solid" id="fightAgain">Fight next</button>
-        <button class="btn ghost" id="toCamp">Camp</button>
-      </div>
-    </section>
-
-    <section class="screen" id="camp">
-      <div class="camp-art"><div class="mask mid" id="campMask"></div></div>
-      <div class="pad" style="flex:1">
-        <p class="kicker" id="campMeta">Point</p>
-        <h2 id="campName">Linen</h2>
-        <p class="statline"><span id="campRecord">0–0</span><span id="campStreak">Dawn</span></p>
-        <p class="bubble" id="campLine">Again.</p>
-        <button class="btn solid" id="sendBtn">Send</button>
+        <button class="btn ghost" id="againSame">Same steel</button>
       </div>
     </section>
   </div>

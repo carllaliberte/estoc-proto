@@ -1,12 +1,11 @@
 # Grok — Estoc (Carl Laliberté)
 
-Default client is Godot 4 in `/godot`.
-Do not treat GitHub Pages as the game.
-Do not add Unity, tokens, or a second game.
+The game is GitHub Pages. Not Godot. Not Unity.
+https://carllaliberte.github.io/estoc-proto/
 
-When Carl talks Estoc, edit `godot/*.gd` and `godot/*.tscn` first.
+Imagine art lives in art.css. Combat lives in app.js.
 English in the game. French with Carl.
-Bout rule: 0.85s tell window, three answers (cut / read / kill), fight ends on HP.
+No token. No second game. No editor for Carl to install.
 
-This machine has no Godot binary and no Xcode.
-Ship source to GitHub. Carl hits Play on the Mac.
+Bout: 0.85s tell, Line / Measure / Opening, fight ends on HP.
+When Carl talks Estoc, edit index.html, styles.css, app.js, art.css.
