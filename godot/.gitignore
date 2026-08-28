@@ -1,0 +1,8 @@
+.godot/
+*.translation
+export_godot/
+*.apk
+*.aab
+*.ipa
+*.dSYM/
+.DS_Store
