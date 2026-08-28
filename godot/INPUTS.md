@@ -1,12 +1,13 @@
 # Inputs
 
-Three answers. Same window (0.85s).
+Tap = answer. Hold ~0.45s on Line / Measure / Opening = listen. Next key or pad button binds that answer. Saved in `user://estoc_inputs.cfg`.
 
-| Answer | On screen | Keys | Pad |
-|---|---|---|---|
-| cut | Line | A · ← · 1 · Q | X / Square |
-| read | Measure | S · ↓ · 2 · W | A / Cross |
-| kill | Opening | D · → · 3 · E | B / Circle |
+Labels switch with the last device (touch / keyboard / pad).
 
-Phone: the three buttons. Touch is the real control.
-Rebind later in Godot Project → Project Settings → Input Map (`cut`, `read`, `kill`).
+Defaults if you never rebind:
+
+| Answer | Keys | Pad |
+|---|---|---|
+| Line (cut) | A ← 1 Q | X |
+| Measure (read) | S ↓ 2 W | A |
+| Opening (kill) | D → 3 E | B |
