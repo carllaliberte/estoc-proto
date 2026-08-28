@@ -3,8 +3,9 @@ extends Control
 const WINDOW := 0.85
 const BOUT := 90.0
 const HOLD_MS := 450
-const STICK_ON := 0.62
-const STICK_OFF := 0.35
+const STICK_ON := 0.55
+const STICK_OFF := 0.28
+const STICK_BIAS := 1.25
 const SAVE_PATH := "user://estoc_inputs.cfg"
 const NAMES := {"cut": "Line", "read": "Measure", "kill": "Opening"}
 const JOY_LABEL := {
@@ -208,18 +209,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		answer("kill")
 
 func _stick_kind() -> String:
-	var x := Input.get_joy_axis(pad_id, JOY_AXIS_LEFT_X)
-	var y := Input.get_joy_axis(pad_id, JOY_AXIS_LEFT_Y)
-	if absf(x) < STICK_OFF and absf(y) < STICK_OFF:
+	var v := Vector2(Input.get_joy_axis(pad_id, JOY_AXIS_LEFT_X), Input.get_joy_axis(pad_id, JOY_AXIS_LEFT_Y))
+	var mag := v.length()
+	if mag < STICK_OFF:
 		stick_latched = ""
 		return ""
-	if stick_latched != "":
+	if stick_latched != "" or mag < STICK_ON:
 		return ""
-	if x <= -STICK_ON:
-		return "cut"
-	if x >= STICK_ON:
-		return "kill"
-	if y >= STICK_ON:
+	var ax := absf(v.x)
+	var ay := absf(v.y)
+	if ax >= ay * STICK_BIAS:
+		return "cut" if v.x < 0.0 else "kill"
+	if v.y > 0.0 and ay >= ax * STICK_BIAS:
 		return "read"
 	return ""
 
