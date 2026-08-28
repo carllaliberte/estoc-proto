@@ -1,0 +1,6 @@
+name: Estoc JS
+paths:
+  - app.js
+  - index.html
+paths-ignore:
+  - assets.js
