@@ -4,29 +4,86 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="theme-color" content="#07080b"/>
+<meta name="theme-color" content="#070403"/>
 <title>Estoc</title>
-<link rel="stylesheet" href="styles.css"/>
+<style>
+:root{--ink:#f3ead8;--muted:#b9a78c;--gold:#e0b36a;--ember:#e06030;--bg:#070403}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;font-family:Palatino,serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{font:inherit;color:inherit;appearance:none}
+#app{height:100%;max-width:430px;margin:0 auto;display:flex;flex-direction:column;background:#070403;position:relative}
+.screen{display:none;flex:1;flex-direction:column;min-height:0;position:relative;overflow:hidden}
+.screen.on{display:flex}
+.kicker{letter-spacing:.34em;text-transform:uppercase;font-size:10px;color:var(--gold);font-family:Helvetica,Arial,sans-serif}
+h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
+.lede{color:var(--muted);font-size:16px;line-height:1.45}
+.btn{width:100%;border:1px solid var(--gold);background:transparent;color:var(--ink);padding:16px;margin-top:10px;cursor:pointer;letter-spacing:.18em;text-transform:uppercase;font-size:13px;font-family:Helvetica,Arial,sans-serif}
+.btn.solid{background:var(--gold);color:#1a1208;font-weight:600}
+.btn.ghost{border-color:#4a3828;color:var(--muted)}
+.hallbg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,#3a1808 0%,transparent 55%),radial-gradient(ellipse at 20% 80%,#c24a18 0%,transparent 42%),radial-gradient(ellipse at 80% 75%,#7a2208 0%,transparent 40%),linear-gradient(#1a0c08,#070403 70%)}
+#splash .copy{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:28px 22px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(7,4,3,.96),transparent)}
+.strip{position:absolute;top:0;left:0;right:0;z-index:4;display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font-size:13px;text-shadow:0 2px 10px #000}
+.hpwrap{display:flex;flex-direction:column;gap:4px;min-width:112px}
+.hpwrap.foe{align-items:flex-end}
+.bar{height:6px;width:112px;background:#1a100c;overflow:hidden;border:1px solid #3a2418}
+.bar>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#c45a28,#e0b36a);transition:width .16s}
+.bar.foe>i{background:linear-gradient(90deg,#2a6a9a,#7ec8ff)}
+.timer{font-family:Helvetica,Arial,sans-serif;letter-spacing:.22em;color:var(--gold);font-size:12px}
+.stage{position:relative;flex:1;min-height:0}
+.fighters{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-between;padding:0 10px 8%}
+.card{width:42%;height:58%;background:linear-gradient(#2a2018,#0c0806);border:1px solid #3a2418;transition:transform .25s;position:relative}
+.card.you{box-shadow:inset 0 0 40px #e0603040}
+.card.foe{box-shadow:inset 0 0 40px #4aa0ff40}
+.card .eyes{position:absolute;left:50%;top:22%;width:36%;height:8px;transform:translateX(-50%);border-radius:2px}
+.card.you .eyes{background:#e06030;box-shadow:0 0 16px #e06030}
+.card.foe .eyes{background:#4aa0ff;box-shadow:0 0 16px #4aa0ff}
+.card.you.lunge{transform:translate(16%,8%) scale(1.06)}
+.card.foe.lunge{transform:translate(-16%,8%) scale(1.06)}
+.card.you.hit{transform:translate(-10%,10%) rotate(-5deg);filter:brightness(.65)}
+.card.foe.hit{transform:translate(10%,10%) rotate(5deg);filter:brightness(.65)}
+.hud{position:relative;z-index:3;background:linear-gradient(to top,#070403 74%,rgba(7,4,3,.15));padding-bottom:env(safe-area-inset-bottom)}
+.tell{text-align:center;min-height:42px;padding:10px 16px 0;font-size:18px;font-style:italic}
+.tell.danger{color:var(--ember)}.tell.good{color:var(--gold)}
+.window{height:6px;margin:8px 16px;background:#1a100c;overflow:hidden;border:1px solid #3a2418}
+.window>i{display:block;height:100%;width:0;background:var(--ember)}
+.window.live>i{width:100%;transition:width .85s linear;background:var(--gold)}
+.hint{text-align:center;color:#8a7358;font-size:10px;letter-spacing:.16em;font-family:Helvetica,Arial,sans-serif;padding:0 12px 8px}
+.skills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 12px 14px}
+.skills button{border:1px solid #3a2418;background:#140c08;color:var(--ink);padding:12px 4px 14px;cursor:pointer;min-height:86px}
+.skills button b{display:block;font-size:15px}
+.skills button small{display:block;margin-top:6px;color:var(--muted);font-size:10px;font-family:Helvetica,Arial,sans-serif}
+.skills.hot button{border-color:rgba(224,96,48,.7)}
+.floater{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:38px;opacity:0;z-index:5;font-weight:600}
+.floater.on{animation:pop .55s ease}
+.floater.good{color:var(--gold)}.floater.bad{color:var(--ember)}
+@keyframes pop{0%{opacity:0}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-28px)}}
+#result .art{flex:1;min-height:240px;position:relative}
+#result .pad{padding:18px 22px calc(22px + env(safe-area-inset-bottom))}
+</style>
 </head>
 <body>
 <div id="app">
   <section class="screen on" id="splash">
-    <canvas id="splashCanvas"></canvas>
-    <div class="splash-copy">
-      <p class="kicker">New Hall · Québec</p>
+    <div class="hallbg"></div>
+    <div class="copy">
+      <p class="kicker">Burning Hall · Québec</p>
       <h1>Estoc</h1>
       <p class="lede">Read the blade. Hit the window. Miss and you eat steel.</p>
-      <button class="btn solid" id="playNow" onclick="window.__estocStart&&window.__estocStart()">Salute Newsteel</button>
+      <button class="btn solid" id="playNow">Salute Newsteel</button>
     </div>
   </section>
   <section class="screen" id="duel">
-    <div class="strip">
-      <div class="hpwrap"><b id="youLabel">Linen</b><div class="bar"><i id="youHp"></i></div></div>
-      <span class="timer" id="timer">1:30</span>
-      <div class="hpwrap foe"><b id="foeLabel">Newsteel</b><div class="bar foe"><i id="foeHp"></i></div></div>
-    </div>
-    <div class="yard" id="yard">
-      <canvas id="piste"></canvas>
+    <div class="stage">
+      <div class="hallbg"></div>
+      <div class="fighters">
+        <div class="card you" id="youCard"><div class="eyes"></div></div>
+        <div class="card foe" id="foeCard"><div class="eyes"></div></div>
+      </div>
+      <div class="strip">
+        <div class="hpwrap"><b id="youLabel">Linen</b><div class="bar"><i id="youHp"></i></div></div>
+        <span class="timer" id="timer">1:30</span>
+        <div class="hpwrap foe"><b id="foeLabel">Newsteel</b><div class="bar foe"><i id="foeHp"></i></div></div>
+      </div>
       <div class="floater" id="floater"></div>
     </div>
     <div class="hud">
@@ -34,14 +91,14 @@
       <div class="window"><i id="windowBar"></i></div>
       <p class="hint">A LINE · S MEASURE · D OPENING</p>
       <div class="skills" id="skills">
-        <button data-s="line"><b>Line</b><small>Cuts Opening</small><kbd>A</kbd></button>
-        <button data-s="measure"><b>Measure</b><small>Reads Line</small><kbd>S</kbd></button>
-        <button data-s="opening"><b>Opening</b><small>Punishes Measure</small><kbd>D</kbd></button>
+        <button data-s="line"><b>Line</b><small>Cuts Opening</small></button>
+        <button data-s="measure"><b>Measure</b><small>Reads Line</small></button>
+        <button data-s="opening"><b>Opening</b><small>Punishes Measure</small></button>
       </div>
     </div>
   </section>
   <section class="screen" id="result">
-    <div class="result-art"><canvas id="resultCanvas"></canvas></div>
+    <div class="art"><div class="hallbg"></div></div>
     <div class="pad">
       <p class="kicker" id="resKicker">Bout</p>
       <h1 id="resTitle">Victory</h1>
@@ -51,6 +108,88 @@
     </div>
   </section>
 </div>
-<script src="app.js"></script>
+<script>
+(function(){
+const ROLES=[{id:"line",beats:"opening",dmg:18,pose:"lunge",flavor:"The point comes."},{id:"measure",beats:"line",dmg:14,pose:"guard",flavor:"They hold the yard."},{id:"opening",beats:"measure",dmg:24,pose:"raise",flavor:"The blade lifts."}];
+const BOTS=[{name:"Newsteel",bias:"line"},{name:"Mist",bias:"measure"},{name:"Fang",bias:"opening"},{name:"Halt",bias:"measure"},{name:"Wake",bias:"line"},{name:"Duelle",bias:"opening"},{name:"Mass",bias:"measure"},{name:"Black Estoc",bias:"opening"}];
+const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,answered:false,exchanges:0,fought:0};
+try{const raw=JSON.parse(localStorage.getItem("estoc.v9")||"null");if(raw){state.name=raw.name||"Linen";state.ladder=raw.ladder||0;state.wins=raw.wins||0;state.losses=raw.losses||0;}}catch(e){}
+let tick=null,tellTimer=null,ctxAudio=null;
+const $=id=>document.getElementById(id);
+const bot=()=>BOTS[Math.min(state.ladder,BOTS.length-1)];
+const role=id=>ROLES.find(r=>r.id===id);
+function persist(){localStorage.setItem("estoc.v9",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses}));}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
+function pose(who,p){const el=$(who==="you"?"youCard":"foeCard");el.className="card "+who+(p&&p!=="idle"?" "+p:"");}
+function audioCtx(){try{ctxAudio=ctxAudio||new(window.AudioContext||window.webkitAudioContext)();}catch(e){}return ctxAudio;}
+function beep(freq,ms,type,vol){try{const c=audioCtx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type||"square";o.frequency.value=freq;g.gain.value=vol||0.05;o.connect(g);g.connect(c.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(ms||90)/1000);}catch(e){}}
+function paintHUD(){$("youHp").style.width=clamp(state.hp,0,100)+"%";$("foeHp").style.width=clamp(state.foe,0,100)+"%";$("timer").textContent=fmt(state.time);}
+function say(text,cls){$("tell").textContent=text;$("tell").className="tell "+(cls||"");}
+function floatTxt(n,good){const el=$("floater");el.textContent="−"+n;el.className="floater on "+(good?"good":"bad");setTimeout(()=>el.classList.remove("on"),560);}
+function startFight(){
+  try{const c=audioCtx();if(c&&c.resume)c.resume();}catch(e){}
+  const b=bot();
+  state.hp=100;state.foe=100;state.time=90;state.live=true;state.windowOpen=false;state.pending=null;state.answered=false;state.exchanges=0;
+  $("youLabel").textContent=state.name;$("foeLabel").textContent=b.name;
+  pose("you","");pose("foe","");paintHUD();say("Salute. Then read the blade.");show("duel");
+  clearInterval(tick);clearTimeout(tellTimer);
+  tick=setInterval(()=>{if(!state.live)return;state.time-=1;$("timer").textContent=fmt(state.time);if(state.time<=0)endBout(state.hp>=state.foe);},1000);
+  beep(220,90,"triangle",0.05);
+  setTimeout(()=>{say("Watch the blade. Do not guess.");setTimeout(openTell,700);},720);
+}
+function pickIncoming(){const b=bot();if(Math.random()<0.62)return role(b.bias);return ROLES[Math.floor(Math.random()*ROLES.length)];}
+function openTell(){
+  if(!state.live)return;
+  const incoming=pickIncoming();
+  state.pending=incoming;state.windowOpen=true;state.answered=false;
+  pose("foe",incoming.pose);pose("you","");
+  say(incoming.flavor,incoming.id==="opening"?"danger":"");
+  const bar=$("windowBar"),win=document.querySelector(".window"),box=$("skills");
+  win.classList.remove("live");bar.style.transition="none";bar.style.width="0";void bar.offsetWidth;
+  const ms=state.exchanges<2?1200:850;
+  bar.style.transition="width "+(ms/1000)+"s linear";win.classList.add("live");box.classList.add("hot");
+  beep(740,40,"triangle",0.035);
+  clearTimeout(tellTimer);
+  tellTimer=setTimeout(()=>{if(!state.live||state.answered)return;resolve(null,incoming);},ms);
+}
+function answer(id){
+  if(!state.live)return;
+  const mine=role(id);if(!mine)return;
+  if(state.windowOpen&&!state.answered){state.answered=true;state.windowOpen=false;document.querySelector(".window").classList.remove("live");$("skills").classList.remove("hot");resolve(mine,state.pending);return;}
+  if(!state.windowOpen)resolve(mine,null);
+}
+function resolve(mine,theirs){
+  state.windowOpen=false;$("skills").classList.remove("hot");document.querySelector(".window").classList.remove("live");
+  let dmgYou=0,dmgFoe=0,line="";
+  if(!mine&&theirs){dmgYou=theirs.id==="opening"?22:theirs.id==="line"?14:7;line=bot().name+" lands.";pose("foe","lunge");pose("you","hit");beep(90,90,"sawtooth",0.06);floatTxt(dmgYou,false);}
+  else if(mine&&!theirs){if(mine.id==="measure"){line="You hold. Nothing there.";pose("you","guard");}else{dmgFoe=Math.floor(mine.dmg*0.4);line="Early. Cheap steel.";pose("you","lunge");pose("foe","hit");floatTxt(dmgFoe,true);}}
+  else{
+    const great=mine.beats===theirs.id,clash=mine.id===theirs.id;
+    if(great){dmgFoe=mine.dmg;line="Clean.";pose("you","lunge");pose("foe","hit");beep(520,90,"triangle",0.06);floatTxt(dmgFoe,true);}
+    else if(clash){dmgFoe=8;dmgYou=6;line="Steel meets steel.";pose("you","lunge");pose("foe","lunge");floatTxt(dmgFoe,true);}
+    else{dmgYou=theirs.id==="opening"?18:theirs.id==="line"?12:6;line="Wrong read.";pose("foe","lunge");pose("you","hit");floatTxt(dmgYou,false);}
+  }
+  state.hp=Math.max(0,state.hp-dmgYou);state.foe=Math.max(0,state.foe-dmgFoe);state.exchanges+=1;
+  say(line,dmgFoe>dmgYou?"good":dmgYou?"danger":"");paintHUD();
+  if(state.hp<=0||state.foe<=0){endBout(state.foe<=0&&state.hp>=state.foe);return;}
+  tellTimer=setTimeout(()=>{pose("you","");pose("foe","");tellTimer=setTimeout(openTell,280+Math.random()*260);},520);
+}
+function endBout(win){
+  state.live=false;clearInterval(tick);clearTimeout(tellTimer);state.fought=state.ladder;
+  if(win){state.wins+=1;if(state.ladder<BOTS.length-1)state.ladder+=1;}else state.losses+=1;
+  persist();
+  $("resTitle").textContent=win?"Victory":"Defeat";
+  $("resKicker").textContent=win?"The hall keeps you":"The hall keeps them";
+  $("resLine").textContent=win?(BOTS[Math.max(0,state.ladder-1)].name+" drops. "+bot().name+" is waiting."):(bot().name+" is still standing. The blade told you first.");
+  $("fightAgain").textContent=win?("Fight "+bot().name):"Fight again";
+  setTimeout(()=>show("result"),380);
+}
+$("playNow").onclick=startFight;$("fightAgain").onclick=startFight;$("againSame").onclick=()=>{state.ladder=state.fought||0;startFight();};
+document.querySelectorAll("#skills button").forEach(btn=>btn.onclick=()=>answer(btn.dataset.s));
+document.addEventListener("keydown",e=>{if(e.repeat)return;const map={a:"line",s:"measure",d:"opening"};const id=map[e.key.toLowerCase()];if(id)answer(id);});
+})();
+</script>
 </body>
 </html>
