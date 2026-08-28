@@ -7,26 +7,25 @@
   --line: #2c3140;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: #0a0c10; color: var(--ink); }
+html, body { height: 100%; background: #07080b; color: var(--ink); }
 body {
   font-family: "Iowan Old Style", Palatino, "Times New Roman", serif;
   overflow: hidden;
 }
-button, input { font: inherit; }
+button { font: inherit; }
 #app {
   height: 100%; max-width: 430px; margin: 0 auto;
-  display: flex; flex-direction: column; background: #0d0f14;
+  display: flex; flex-direction: column; background: #0b0d12;
   box-shadow: 0 0 80px #000;
 }
 .screen { display: none; flex: 1; flex-direction: column; min-height: 0; }
 .screen.on { display: flex; }
-.pad { padding: 22px; }
+.pad { padding: 22px 22px 28px; }
 .kicker {
   letter-spacing: .28em; text-transform: uppercase; font-size: 11px;
   color: var(--gold); font-family: "Helvetica Neue", sans-serif;
 }
-h1 { font-weight: 500; font-size: 44px; margin: 8px 0 10px; }
-h2 { font-weight: 500; font-size: 26px; margin: 0 0 8px; }
+h1 { font-weight: 500; font-size: 46px; margin: 8px 0 10px; }
 .lede { color: var(--muted); font-size: 16px; line-height: 1.4; }
 .btn {
   width: 100%; border: 1px solid var(--gold); background: transparent;
@@ -37,74 +36,51 @@ h2 { font-weight: 500; font-size: 26px; margin: 0 0 8px; }
 .btn.solid { background: var(--gold); color: #14120e; }
 .btn.ghost { border-color: var(--line); color: var(--muted); }
 .hero {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 50% 46%, #2c3344 0 10%, #0d0f14 68%);
+  flex: 1; position: relative; background-size: cover; background-position: center 40%;
 }
-.mask {
-  width: 92px; height: 124px; border-radius: 46% 46% 38% 38%;
-  border: 1.5px solid rgba(212,176,122,.6);
-  background:
-    radial-gradient(circle at 50% 36%, rgba(238,232,220,.1) 0 14%, transparent 15%),
-    repeating-radial-gradient(circle at 50% 40%, rgba(212,176,122,.3) 0 1.1px, transparent 1.2px 4.5px),
-    linear-gradient(#3a4252, #14171e);
-  box-shadow: inset 0 0 22px #000, 0 10px 24px #000;
-  position: relative;
+.hero.hall { background-image: var(--hall); }
+.mask-hero {
+  height: 38%; background-image: var(--mask);
+  background-size: cover; background-position: center 30%;
 }
-.mask::before {
-  content: ""; position: absolute; left: 18%; right: 18%; top: 34%;
-  height: 22%; border-radius: 40%; background: rgba(6,7,10,.5);
-  border: 1px solid rgba(212,176,122,.2);
-}
-.mask.big { width: 150px; height: 200px; }
-.mask.mid { width: 100px; height: 134px; }
-.mask.mini { width: 52px; height: 70px; flex-shrink: 0; }
-.mask.pointe { border-color: #d4b07a; }
-.mask.taille { border-color: #d06040; }
-.mask.garde { border-color: #7aaa72; }
-.cards { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
-.card {
-  border: 1px solid var(--line); background: #171a22; padding: 12px;
-  display: flex; gap: 12px; align-items: center; width: 100%;
-  color: inherit; text-align: left; cursor: pointer;
-}
-.card.on { border-color: var(--gold); }
-.card p { color: var(--muted); font-size: 13px; margin-top: 4px; }
-input.name {
-  width: 100%; background: #171a22; border: 1px solid var(--line);
-  color: var(--ink); padding: 12px; margin-top: 8px;
+.veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, #0b0d12 0%, transparent 42%);
 }
 .strip {
   display: flex; justify-content: space-between; align-items: baseline;
-  padding: 14px 16px 0; font-size: 14px;
+  padding: 14px 16px 0; font-size: 14px; position: relative; z-index: 2;
 }
 .timer {
   font-family: "Helvetica Neue", sans-serif; letter-spacing: .18em; color: var(--gold);
 }
 .yard {
-  position: relative; flex: 1; min-height: 220px;
+  position: relative; flex: 1; min-height: 240px;
   display: flex; align-items: flex-end; justify-content: space-between;
-  padding: 20px 18px 8px;
-  background:
-    linear-gradient(to top, #0d0f14, transparent 40%),
-    repeating-linear-gradient(90deg, transparent 0 31px, rgba(212,176,122,.07) 31px 32px),
-    radial-gradient(ellipse at 50% 80%, #1c2230 0 20%, #0d0f14 70%);
+  padding: 8px 10px 10px; background-image: var(--hall);
+  background-size: cover; background-position: center 60%;
 }
 .yard.flash { animation: flash .18s linear; }
 .yard.hurt { animation: hurt .2s linear; }
-@keyframes flash { 50% { background-color: rgba(212,176,122,.18); } }
-@keyframes hurt { 50% { background-color: rgba(208,96,64,.22); } }
-.side { text-align: center; width: 42%; transition: transform .16s ease; }
-.side.you.lunge { transform: translateX(28px); }
-.side.foe.lunge { transform: translateX(-28px); }
-.side.recoil { transform: translateX(0) scale(.96); }
-.hpn {
-  margin-top: 8px; font-family: "Helvetica Neue", sans-serif; font-size: 18px; color: var(--gold);
+@keyframes flash { 50% { box-shadow: inset 0 0 80px rgba(212,176,122,.35); } }
+@keyframes hurt { 50% { box-shadow: inset 0 0 80px rgba(208,96,64,.4); } }
+.side { text-align: center; width: 46%; z-index: 2; transition: transform .16s ease; }
+.side.you.lunge { transform: translateX(36px); }
+.side.foe.lunge { transform: translateX(-36px); }
+.body {
+  height: 210px; background-size: contain; background-repeat: no-repeat;
+  background-position: center bottom; filter: drop-shadow(0 10px 16px #000);
 }
-.bar { height: 7px; background: #262a34; margin-top: 4px; }
+.you-art { background-image: var(--you); }
+.foe-art { background-image: var(--foe); }
+.hpn {
+  margin-top: 6px; font-family: "Helvetica Neue", sans-serif; font-size: 18px; color: var(--gold);
+}
+.bar { height: 7px; background: #1b1e26; margin-top: 4px; }
 .bar > i { display: block; height: 100%; width: 100%; background: var(--ok); transition: width .15s; }
 .floater {
-  position: absolute; left: 50%; top: 18%; transform: translateX(-50%);
-  font-size: 28px; font-family: "Helvetica Neue", sans-serif; opacity: 0; pointer-events: none;
+  position: absolute; left: 50%; top: 16%; transform: translateX(-50%);
+  font-size: 30px; font-family: "Helvetica Neue", sans-serif; opacity: 0; pointer-events: none; z-index: 3;
 }
 .floater.on { animation: pop .6s ease; }
 .floater.good { color: var(--gold); }
@@ -112,15 +88,15 @@ input.name {
 @keyframes pop {
   0% { opacity: 0; transform: translate(-50%, 12px); }
   20% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -18px); }
+  100% { opacity: 0; transform: translate(-50%, -22px); }
 }
 .tell {
-  text-align: center; min-height: 44px; padding: 0 16px;
+  text-align: center; min-height: 44px; padding: 4px 16px 0;
   font-size: 18px; font-style: italic;
 }
 .tell.danger { color: var(--ember); }
 .tell.good { color: var(--gold); }
-.window { height: 6px; margin: 6px 16px 10px; background: #1b1e26; }
+.window { height: 6px; margin: 8px 16px 10px; background: #1b1e26; }
 .window > i { display: block; height: 100%; width: 0; background: var(--ember); }
 .window.live > i { width: 100%; transition: width .85s linear; background: var(--gold); }
 .skills {
@@ -128,21 +104,12 @@ input.name {
   padding: 0 12px 22px;
 }
 .skills button {
-  border: 1px solid var(--line); background: #171a22; color: var(--ink);
-  padding: 18px 6px; cursor: pointer; min-height: 92px;
+  border: 1px solid var(--line); background: #14171e; color: var(--ink);
+  padding: 16px 6px; cursor: pointer; min-height: 88px;
 }
 .skills button small {
   display: block; margin-top: 6px; color: var(--muted); font-size: 10px;
-  font-family: "Helvetica Neue", sans-serif; text-transform: none; letter-spacing: 0;
+  font-family: "Helvetica Neue", sans-serif; letter-spacing: 0;
 }
 .skills button:active { border-color: var(--gold); }
 .skills.hot button { border-color: var(--ember); }
-.camp-art {
-  height: 36%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
-  background: radial-gradient(ellipse at 50% 70%, #2a3140 0 18%, #0d0f14 72%);
-}
-.statline {
-  display: flex; justify-content: space-between; color: var(--muted);
-  font-size: 13px; margin: 8px 0 14px; font-family: "Helvetica Neue", sans-serif;
-}
-.bubble { border-left: 2px solid var(--gold); padding: 8px 12px; font-style: italic; margin-bottom: 16px; }
