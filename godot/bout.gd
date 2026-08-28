@@ -21,9 +21,30 @@ var tell_left := 0.0
 @onready var timer_lbl: Label = $Hud/Timer
 
 func _ready() -> void:
+	_bind_inputs()
 	start_bout()
 
+func _bind_inputs() -> void:
+	_map("cut", [KEY_A, KEY_LEFT, KEY_1, KEY_Q], JOY_BUTTON_X)
+	_map("read", [KEY_S, KEY_DOWN, KEY_2, KEY_W], JOY_BUTTON_A)
+	_map("kill", [KEY_D, KEY_RIGHT, KEY_3, KEY_E], JOY_BUTTON_B)
+
+func _map(action: String, keys: Array, joy: int) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action)
+	else:
+		InputMap.action_erase_events(action)
+	for code in keys:
+		var k := InputEventKey.new()
+		k.physical_keycode = code
+		InputMap.action_add_event(action, k)
+	var pad := InputEventJoypadButton.new()
+	pad.button_index = joy
+	InputMap.action_add_event(action, pad)
+
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_echo():
+		return
 	if event.is_action_pressed("cut"):
 		answer("cut")
 	elif event.is_action_pressed("read"):
