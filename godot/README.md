@@ -1,13 +1,12 @@
-# Estoc — Godot 4 client
+# Estoc — Godot 4 + Grok
 
-This is the real client. The Pages site is not.
+Carl's account default: this folder is the game.
+Grok reads `GROK.md` at repo root before touching Pages or Unity.
 
-## On your Mac
+## Mac, once
 
-1. Install Godot 4 (free): https://godotengine.org/download/macos/
-2. Godot → Import → this `godot/` folder
-3. Press Play
+1. Godot 4 from https://godotengine.org/download/macos/
+2. Import this `godot/` folder
+3. Play. A Line · S Measure · D Opening
 
-A / S / D or the three buttons. Gold bar = the tell. Miss it and you eat steel.
-
-Export to iPhone later from the same project (Godot → Project → Export → iOS). That step needs Xcode on the Mac. Unity and SpriteKit are not connected to this account.
+Grok cannot press Play for you. After each push, you open Godot.
