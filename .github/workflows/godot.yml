@@ -1,0 +1,24 @@
+name: Godot
+
+on:
+  push:
+    paths:
+      - "godot/**"
+      - ".github/workflows/godot.yml"
+  pull_request:
+    paths:
+      - "godot/**"
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Headless load
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import and quit
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          godot --headless --path godot --quit-after 3
