@@ -1,12 +1,10 @@
 # Grok — Estoc (Carl Laliberté)
 
-The game is GitHub Pages. Not Godot. Not Unity.
-https://carllaliberte.github.io/estoc-proto/
+Look bible: cracked black plate, ochre scarf, ember eyes, fire hall.
+Not olympic white kit. Not mesh fencing mask. Not Godot.
 
-index.html is the whole proto. Self-contained. No art.css required.
-English in the game. French with Carl.
-No token. No second game. No editor for Carl to install.
+Live: https://carllaliberte.github.io/estoc-proto/
+Play: open index.html. English in the game. French with Carl.
 
-Bout: canvas piste, visual blade tells, salute then 1.2s / 0.85s window.
-Line cuts Opening. Measure reads Line. Opening punishes Measure.
-When Carl talks Estoc, edit index.html and push.
+Bout: 0.85s tell, Line / Measure / Opening. HP ends the fight.
+No token. No second game.
