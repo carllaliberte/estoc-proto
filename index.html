@@ -58,7 +58,7 @@ h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
   <section class="screen on" id="splash">
     <canvas id="splashC"></canvas>
     <div class="copy">
-      <p class="kicker">Burning Hall · Québec</p>
+      <p class="kicker">Burning Hall \u00b7 Qu\u00e9bec</p>
       <h1>Estoc</h1>
       <p class="lede">Read the blade. Hit the window. Miss and you eat steel.</p>
       <button class="btn solid" id="playNow" type="button">Salute Newsteel</button>
@@ -77,7 +77,7 @@ h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
     <div class="hud">
       <p class="tell" id="tell">Watch the blade.</p>
       <div class="window"><i id="windowBar"></i></div>
-      <p class="hint">A LINE · S MEASURE · D OPENING</p>
+      <p class="hint">A LINE \u00b7 S MEASURE \u00b7 D OPENING</p>
       <div class="skills" id="skills">
         <button type="button" data-s="line"><b>Line</b><small>Cuts Opening</small></button>
         <button type="button" data-s="measure"><b>Measure</b><small>Reads Line</small></button>
@@ -105,22 +105,24 @@ const SKILLS=[
   {id:"opening",beats:"measure",dmg:24,pose:"opening",flavor:"The blade lifts."}
 ];
 const BOTS=[
-  {name:"Newsteel",bias:"line",biasP:.78,maskWin:"Newsteel drops. The hall is quieter.",maskLose:"Newsteel already knew your measure."},
-  {name:"Mist",bias:"measure",biasP:.74,maskWin:"Mist fades. You kept the line.",maskLose:"Mist read you before the salute."},
-  {name:"Fang",bias:"opening",biasP:.76,maskWin:"You looked up. That was enough.",maskLose:"Hunger reads faster than you."},
-  {name:"Halt",bias:"measure",biasP:.80,maskWin:"Plate holds. Next steel waits.",maskLose:"You walked into the plate."},
-  {name:"Wake",bias:"line",biasP:.70,maskWin:"Pressure does the talking.",maskLose:"The line was mine before the salute."},
-  {name:"Duelle",bias:"opening",biasP:.72,maskWin:"Blood answers a raised blade.",maskLose:"You measured a storm."},
-  {name:"Mass",bias:"measure",biasP:.77,maskWin:"The strip is smaller than you thought.",maskLose:"Weight wins the quiet ones."},
-  {name:"Black Estoc",bias:"opening",biasP:.66,maskWin:"Same scarf. Colder eyes.",maskLose:"You already lost this bout once."}
+  {name:"Newsteel",bias:"line",biasP:.78,feintP:.18,maskWin:"Newsteel drops. The hall is quieter.",maskLose:"Newsteel already knew your measure."},
+  {name:"Mist",bias:"measure",biasP:.74,feintP:.42,maskWin:"Mist fades. You kept the line.",maskLose:"Mist read you before the salute."},
+  {name:"Fang",bias:"opening",biasP:.76,feintP:.34,maskWin:"You looked up. That was enough.",maskLose:"Hunger reads faster than you."},
+  {name:"Halt",bias:"measure",biasP:.80,feintP:.22,maskWin:"Plate holds. Next steel waits.",maskLose:"You walked into the plate."},
+  {name:"Wake",bias:"line",biasP:.70,feintP:.30,maskWin:"Pressure does the talking.",maskLose:"The line was mine before the salute."},
+  {name:"Duelle",bias:"opening",biasP:.72,feintP:.36,maskWin:"Blood answers a raised blade.",maskLose:"You measured a storm."},
+  {name:"Mass",bias:"measure",biasP:.77,feintP:.20,maskWin:"The strip is smaller than you thought.",maskLose:"Weight wins the quiet ones."},
+  {name:"Black Estoc",bias:"opening",biasP:.66,feintP:.40,maskWin:"Same scarf. Colder eyes.",maskLose:"You already lost this bout once."}
 ];
-const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,answered:false,exchanges:0,fought:0,
+const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,fake:null,answered:false,exchanges:0,fought:0,
   youPose:"salute",foePose:"salute",shake:0,sparks:[],dust:[]};
 try{const raw=JSON.parse(localStorage.getItem("estoc.v10")||"null");if(raw){state.name=raw.name||"Linen";state.ladder=raw.ladder||0;state.wins=raw.wins||0;state.losses=raw.losses||0;}}catch(e){}
-let tick=null,tellTimer=null,ctxAudio=null,raf=0;
+let tick=null,tellTimer=null,feintTimer=null,ctxAudio=null,raf=0,lastW=320,lastH=420;
 const $=id=>document.getElementById(id);
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function tellLine(id){return id==="line"?"Point advances.":id==="measure"?"Guard holds.":"Blade lifts high.";}
+function otherSkill(id){const ids=SKILLS.map(s=>s.id).filter(x=>x!==id);return ids[Math.floor(Math.random()*ids.length)];}
 function bot(){return BOTS[Math.min(state.ladder,BOTS.length-1)];}
 function save(){localStorage.setItem("estoc.v10",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses}));}
 function paintHUD(){$("youHp").style.width=clamp(state.hp,0,100)+"%";$("foeHp").style.width=clamp(state.foe,0,100)+"%";$("timer").textContent=fmt(state.time);}
@@ -207,6 +209,7 @@ function drawScene(canvas, youP, foeP, t){
   const ctx=canvas.getContext("2d");
   const d=window.devicePixelRatio||1;
   const w=canvas.width/d, h=canvas.height/d;
+  lastW=w; lastH=h;
   ctx.setTransform(d,0,0,d,0,0);
   hall(ctx,w,h);
   const ground=h*0.72;
@@ -227,10 +230,10 @@ function startFight(){
   const b=bot();
   state.fought=state.ladder;
   state.hp=100;state.foe=100;state.time=90;state.live=true;state.windowOpen=false;state.pending=null;state.answered=false;state.exchanges=0;
-  state.youPose="salute";state.foePose="salute";state.sparks=[];
+  state.youPose="salute";state.foePose="salute";state.sparks=[];state.fake=null;
   $("youLabel").textContent=state.name; $("foeLabel").textContent=b.name;
   paintHUD(); say("Salute. Then read the blade."); show("duel");
-  clearInterval(tick); clearTimeout(tellTimer);
+  clearInterval(tick); clearTimeout(tellTimer); clearTimeout(feintTimer);
   tick=setInterval(()=>{if(!state.live)return;state.time-=1;$("timer").textContent=fmt(state.time);if(state.time<=0)endBout(state.hp>=state.foe);},1000);
   setTimeout(()=>{say("Watch the blade. Do not guess."); setTimeout(openTell,700);},900);
 }
@@ -239,14 +242,27 @@ function openTell(){
   if(!state.live)return;
   const b=bot();
   const incoming=Math.random()<b.biasP?b.bias:SKILLS[Math.floor(Math.random()*3)].id;
-  state.pending=incoming; state.windowOpen=true; state.answered=false;
-  state.foePose=incoming; state.youPose="guard";
-  say(incoming==="line"?"Point advances.":incoming==="measure"?"Guard holds.":"Blade lifts high.","danger");
+  const lie=state.exchanges>=2 && Math.random()<(b.feintP||0);
+  const fake=lie?otherSkill(incoming):null;
+  state.pending=incoming; state.fake=fake; state.windowOpen=true; state.answered=false;
+  state.foePose=fake||incoming; state.youPose="guard";
+  say(tellLine(fake||incoming),"danger");
   $("skills").classList.add("hot");
   const bar=$("windowBar"); bar.style.transition="none"; bar.style.width="0%"; void bar.offsetWidth;
   const ms=state.exchanges<2?1200:850;
   bar.style.transition="width "+ms+"ms linear"; bar.style.width="100%";
   $("window").classList.add("live");
+  clearTimeout(feintTimer);
+  if(fake){
+    const snap=Math.min(420, Math.floor(ms*0.48));
+    feintTimer=setTimeout(()=>{
+      if(!state.live||state.answered||!state.windowOpen)return;
+      state.foePose=incoming;
+      say(tellLine(incoming),"danger");
+      beep(300,45);
+      burst(lastW*0.70,lastH*0.46,"#7ec8ff");
+    },snap);
+  }
   tellTimer=setTimeout(()=>{if(!state.live||state.answered)return;resolve(null,incoming);},ms);
 }
 function answer(id){
@@ -255,22 +271,25 @@ function answer(id){
   if(!mine)return;
   if(state.windowOpen&&!state.answered){
     state.answered=true; state.windowOpen=false;
-    clearTimeout(tellTimer); resolve(mine,state.pending);
+    clearTimeout(tellTimer); clearTimeout(feintTimer); resolve(mine,state.pending);
     return;
   }
   if(!state.windowOpen) resolve(mine,null);
 }
 function resolve(mine,theirs){
   state.windowOpen=false; $("skills").classList.remove("hot"); $("window").classList.remove("live");
+  clearTimeout(feintTimer);
+  const boughtFake=!!(state.fake && mine && mine.beats===state.fake && mine.beats!==theirs);
   let dmgYou=0, dmgFoe=0, line="";
   if(!theirs){ dmgYou=8; line="No tell. You eat steel."; state.youPose="hit"; state.foePose="lunge"; beep(120,140); float(-8,false); }
   else if(!mine){ dmgYou=theirs==="opening"?22:theirs==="line"?14:6; line="Late. "+theirs+" lands."; state.youPose="hit"; state.foePose="lunge"; beep(130,120); float(-dmgYou,false); }
   else {
     state.youPose=mine.pose; state.foePose=theirs;
-    if(mine.beats===theirs){ dmgFoe=mine.dmg||12; line=mine.flavor+" Clean."; beep(520,80,"triangle"); float(dmgFoe,true); burst(0,0,"#e0b36a"); }
+    if(mine.beats===theirs){ dmgFoe=mine.dmg||12; line=state.fake?"You waited. The lie dies.":mine.flavor+" Clean."; beep(520,80,"triangle"); float(dmgFoe,true); burst(lastW*0.5,lastH*0.50,"#e0b36a"); }
     else if(theirs===mine.id){ line="Clash. Steel meets steel."; beep(220,60); }
-    else { dmgYou=theirs==="opening"?18:theirs==="line"?12:5; line="Wrong read. "+theirs+" hits."; state.youPose="hit"; beep(140,100); float(-dmgYou,false); }
+    else { dmgYou=theirs==="opening"?18:theirs==="line"?12:5; line=boughtFake?"Feint. You bought the first blade.":"Wrong read. "+theirs+" hits."; state.youPose="hit"; beep(140,100); float(-dmgYou,false); }
   }
+  state.fake=null;
   state.hp=Math.max(0,state.hp-dmgYou); state.foe=Math.max(0,state.foe-dmgFoe);
   paintHUD(); say(line, dmgFoe>dmgYou?"good":dmgYou?"danger":"");
   if(navigator.vibrate)navigator.vibrate(dmgYou>10?40:12);
@@ -279,7 +298,7 @@ function resolve(mine,theirs){
   tellTimer=setTimeout(()=>{ state.youPose="guard"; state.foePose="guard"; tellTimer=setTimeout(openTell,260+Math.random()*240); },520);
 }
 function endBout(win){
-  state.live=false; clearInterval(tick); clearTimeout(tellTimer);
+  state.live=false; clearInterval(tick); clearTimeout(tellTimer); clearTimeout(feintTimer);
   const fought=BOTS[Math.min(state.fought,BOTS.length-1)];
   if(win){state.wins+=1; if(state.ladder<BOTS.length-1)state.ladder+=1;} else state.losses+=1;
   save();
