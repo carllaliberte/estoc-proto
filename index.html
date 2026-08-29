@@ -1,1 +1,342 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#070403"/>
+<title>Estoc</title>
+<style>
+:root{--ink:#f3ead8;--muted:#b9a78c;--gold:#e0b36a;--ember:#e06030;--bg:#070403}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;font-family:Palatino,"Palatino Linotype",Georgia,serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{font:inherit;color:inherit;appearance:none;border:0;background:0}
+#app{height:100%;max-width:430px;margin:0 auto;display:flex;flex-direction:column;position:relative;background:#070403}
+.screen{display:none;flex:1;flex-direction:column;min-height:0;position:relative;overflow:hidden}
+.screen.on{display:flex}
+.kicker{letter-spacing:.34em;text-transform:uppercase;font-size:10px;color:var(--gold);font-family:Helvetica,Arial,sans-serif}
+h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
+.lede{color:var(--muted);font-size:16px;line-height:1.45}
+.btn{width:100%;border:1px solid var(--gold);background:transparent;color:var(--ink);padding:16px;margin-top:10px;cursor:pointer;letter-spacing:.18em;text-transform:uppercase;font-size:13px;font-family:Helvetica,Arial,sans-serif}
+.btn.solid{background:var(--gold);color:#1a1208;font-weight:600}
+.btn.ghost{border-color:#4a3828;color:var(--muted)}
+#splash .copy{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:28px 22px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(7,4,3,.97),transparent)}
+.strip{position:absolute;top:0;left:0;right:0;z-index:4;display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font-size:13px;text-shadow:0 2px 10px #000;pointer-events:none}
+.hpwrap{display:flex;flex-direction:column;gap:4px;min-width:118px}
+.hpwrap.foe{align-items:flex-end}
+.bar{height:6px;width:118px;background:#1a100c;overflow:hidden;border:1px solid #3a2418}
+.bar>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#c45a28,#e0b36a);transition:width .16s}
+.bar.foe>i{background:linear-gradient(90deg,#2a6a9a,#7ec8ff)}
+.timer{font-family:Helvetica,Arial,sans-serif;letter-spacing:.22em;color:var(--gold);font-size:12px}
+#stage{position:relative;flex:1;min-height:0}
+#c{position:absolute;inset:0;width:100%;height:100%}
+.hud{position:relative;z-index:3;background:linear-gradient(to top,#070403 65%,transparent);padding-bottom:env(safe-area-inset-bottom)}
+.tell{text-align:center;min-height:40px;padding:10px 16px 0;font-size:18px;font-style:italic}
+.tell.danger{color:var(--ember)}.tell.good{color:var(--gold)}
+.window{height:6px;margin:8px 16px;background:#1a100c;overflow:hidden;border:1px solid #3a2418}
+.window>i{display:block;height:100%;width:0;background:var(--ember)}
+.window.live>i{width:100%;transition:width .85s linear;background:var(--gold)}
+.hint{text-align:center;color:var(--muted);font-size:10px;letter-spacing:.14em;font-family:Helvetica,Arial,sans-serif;padding:0 12px 8px}
+.skills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 12px 14px}
+.skills button{border:1px solid #3a2418;background:#120c08;color:var(--ink);padding:12px 4px 14px;cursor:pointer;min-height:86px}
+.skills button b{display:block;font-weight:500;font-size:15px}
+.skills button small{display:block;margin-top:6px;color:var(--muted);font-size:10px;font-family:Helvetica,Arial,sans-serif}
+.skills button:active{border-color:var(--gold)}
+.skills.hot button{border-color:rgba(224,96,48,.7);background:#1a100c}
+.floater{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-size:36px;opacity:0;z-index:5;font-weight:600;pointer-events:none}
+.floater.on{animation:pop .55s ease}
+.floater.good{color:var(--gold)}.floater.bad{color:var(--ember)}
+@keyframes pop{0%{opacity:0}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-28px)}}
+#result .art{flex:1;min-height:220px;position:relative}
+#result canvas{position:absolute;inset:0;width:100%;height:100%}
+#result .pad{padding:18px 22px calc(22px + env(safe-area-inset-bottom))}
+.mask{color:var(--gold);font-style:italic;margin:8px 0 14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="screen on" id="splash">
+    <canvas id="splashC"></canvas>
+    <div class="copy">
+      <p class="kicker">Burning Hall &middot; Qu&eacute;bec</p>
+      <h1>Estoc</h1>
+      <p class="lede">Read the blade. Hit the window. Miss and you eat steel.</p>
+      <button class="btn solid" id="playNow" type="button">Salute Newsteel</button>
+    </div>
+  </section>
+  <section class="screen" id="duel">
+    <div id="stage">
+      <canvas id="c"></canvas>
+      <div class="strip">
+        <div class="hpwrap"><b id="youLabel">Linen</b><div class="bar"><i id="youHp"></i></div></div>
+        <span class="timer" id="timer">1:30</span>
+        <div class="hpwrap foe"><b id="foeLabel">Newsteel</b><div class="bar foe"><i id="foeHp"></i></div></div>
+      </div>
+      <div class="floater" id="floater"></div>
+    </div>
+    <div class="hud">
+      <p class="tell" id="tell">Watch the blade.</p>
+      <div class="window"><i id="windowBar"></i></div>
+      <p class="hint">A LINE &middot; S MEASURE &middot; D OPENING</p>
+      <div class="skills" id="skills">
+        <button type="button" data-s="line"><b>Line</b><small>Cuts Opening</small></button>
+        <button type="button" data-s="measure"><b>Measure</b><small>Reads Line</small></button>
+        <button type="button" data-s="opening"><b>Opening</b><small>Punishes Measure</small></button>
+      </div>
+    </div>
+  </section>
+  <section class="screen" id="result">
+    <div class="art"><canvas id="resC"></canvas></div>
+    <div class="pad">
+      <p class="kicker" id="resKicker">The mask</p>
+      <h1 id="resTitle">Victory</h1>
+      <p class="mask" id="resMask"></p>
+      <p class="lede" id="resLine"></p>
+      <button class="btn solid" id="fightAgain" type="button">Fight next</button>
+      <button class="btn ghost" id="againSame" type="button">Same steel</button>
+    </div>
+  </section>
+</div>
+<script>
+(function(){
+const SKILLS=[
+  {id:"line",beats:"opening",dmg:14,pose:"line",flavor:"Point drives."},
+  {id:"measure",beats:"line",dmg:0,pose:"measure",flavor:"You hold the yard."},
+  {id:"opening",beats:"measure",dmg:24,pose:"opening",flavor:"The blade lifts."}
+];
+const BOTS=[
+  {name:"Newsteel",bias:"line",biasP:.78,feintP:.18,maskWin:"Newsteel drops. The hall is quieter.",maskLose:"Newsteel already knew your measure."},
+  {name:"Mist",bias:"measure",biasP:.74,feintP:.42,maskWin:"Mist fades. You kept the line.",maskLose:"Mist read you before the salute."},
+  {name:"Fang",bias:"opening",biasP:.76,feintP:.34,maskWin:"You looked up. That was enough.",maskLose:"Hunger reads faster than you."},
+  {name:"Halt",bias:"measure",biasP:.80,feintP:.22,maskWin:"Plate holds. Next steel waits.",maskLose:"You walked into the plate."},
+  {name:"Wake",bias:"line",biasP:.70,feintP:.30,maskWin:"Pressure does the talking.",maskLose:"The line was mine before the salute."},
+  {name:"Duelle",bias:"opening",biasP:.72,feintP:.36,maskWin:"Blood answers a raised blade.",maskLose:"You measured a storm."},
+  {name:"Mass",bias:"measure",biasP:.77,feintP:.20,maskWin:"The strip is smaller than you thought.",maskLose:"Weight wins the quiet ones."},
+  {name:"Black Estoc",bias:"opening",biasP:.66,feintP:.40,maskWin:"Same scarf. Colder eyes.",maskLose:"You already lost this bout once."}
+];
+const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,fake:null,answered:false,exchanges:0,fought:0,
+  youPose:"salute",foePose:"salute",shake:0,sparks:[],dust:[]};
+try{const raw=JSON.parse(localStorage.getItem("estoc.v10")||"null");if(raw){state.name=raw.name||"Linen";state.ladder=raw.ladder||0;state.wins=raw.wins||0;state.losses=raw.losses||0;}}catch(e){}
+let tick=null,tellTimer=null,feintTimer=null,ctxAudio=null,raf=0,lastW=320,lastH=420;
+const $=id=>document.getElementById(id);
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function tellLine(id){return id==="line"?"Point advances.":id==="measure"?"Guard holds.":"Blade lifts high.";}
+function otherSkill(id){const ids=SKILLS.map(s=>s.id).filter(x=>x!==id);return ids[Math.floor(Math.random()*ids.length)];}
+function bot(){return BOTS[Math.min(state.ladder,BOTS.length-1)];}
+function save(){localStorage.setItem("estoc.v10",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses}));}
+function paintHUD(){$("youHp").style.width=clamp(state.hp,0,100)+"%";$("foeHp").style.width=clamp(state.foe,0,100)+"%";$("timer").textContent=fmt(state.time);}
+function say(text,cls){$("tell").textContent=text;$("tell").className="tell "+(cls||"");}
+function float(n,good){const el=$("floater");el.textContent=(n>0?"+":"")+n;el.className="floater on "+(good?"good":"bad");setTimeout(()=>el.classList.remove("on"),560);}
+function beep(f,ms,type){try{ctxAudio=ctxAudio||new (window.AudioContext||window.webkitAudioContext)();const o=ctxAudio.createOscillator(),g=ctxAudio.createGain();o.type=type||"square";o.frequency.value=f;g.gain.value=.04;o.connect(g);g.connect(ctxAudio.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ctxAudio.currentTime+ms/1000);o.stop(ctxAudio.currentTime+ms/1000);}catch(e){}}
+function sizeCanvas(){[$("c"),$("splashC"),$("resC")].forEach(c=>{if(!c)return;const r=c.parentElement.getBoundingClientRect();const d=window.devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;c.style.width=r.width+"px";c.style.height=r.height+"px";});}
+function hall(ctx,w,h){
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,"#1a0c08");g.addColorStop(.45,"#0c0604");g.addColorStop(1,"#070403");
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="rgba(224,96,48,.06)";ctx.fillRect(0,h*0.55,w,h*0.45);
+  for(let i=0;i<6;i++){ctx.fillStyle="rgba(224,180,100,"+(0.03+i*0.01)+")";ctx.fillRect(w*0.1+i*w*0.14,0,2,h);}
+  ctx.strokeStyle="rgba(180,120,60,.15)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,h*0.72);ctx.lineTo(w,h*0.72);ctx.stroke();
+}
+function drawBlade(ctx, hx, hy, ang, len, steel, glow){
+  const tx=hx+Math.cos(ang)*len, ty=hy+Math.sin(ang)*len;
+  ctx.strokeStyle=glow; ctx.lineWidth=7; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tx,ty); ctx.stroke();
+  ctx.strokeStyle=steel; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(tx,ty); ctx.stroke();
+  ctx.fillStyle=steel; ctx.beginPath(); ctx.arc(tx,ty,2.6,0,6.28); ctx.fill();
+}
+function drawFencer(ctx, x, y, facing, pose, isYou, t){
+  const plate=isYou?"#1c110c":"#0c141c";
+  const rim=isYou?"#c9a46a":"#6a90b0";
+  const scarf=isYou?"#c45a28":"#24344c";
+  const eye=isYou?"#e06030":"#4aa0ff";
+  const steel=isYou?"#f3ead8":"#d0deea";
+  const glow=isYou?"rgba(224,96,48,.45)":"rgba(80,160,255,.4)";
+  let bodyX=0, bladeAng=-0.18, bladeLen=122, handY=-78, lean=0;
+  if(pose==="salute"){bladeAng=-1.52; bladeLen=96; handY=-96;}
+  if(pose==="line"){bladeAng=-0.06; bodyX=14; bladeLen=128;}
+  if(pose==="measure"){bladeAng=0.62; handY=-50; bladeLen=108; bodyX=-4;}
+  if(pose==="opening"){bladeAng=-1.92; handY=-118; bladeLen=118;}
+  if(pose==="lunge"){bodyX=34; bladeAng=-0.04; lean=.12; bladeLen=132;}
+  if(pose==="hit"){bodyX=-18; bladeAng=0.42; lean=-.1;}
+  if(pose==="guard"){bladeAng=0.35; handY=-62; bodyX=-6;}
+  ctx.save();
+  ctx.translate(x+bodyX*facing,y);
+  ctx.scale(facing,1);
+  ctx.rotate(lean);
+  const sway=Math.sin(t*2.1)*1.2;
+  ctx.translate(0,sway);
+  ctx.fillStyle=scarf;
+  ctx.beginPath(); ctx.moveTo(-6,-70); ctx.quadraticCurveTo(-28,-20,-18,18); ctx.lineTo(-4,16); ctx.quadraticCurveTo(-10,-24,6,-66); ctx.fill();
+  ctx.fillStyle=plate;
+  ctx.fillRect(-9,8,16,36); ctx.fillRect(4,8,12,38);
+  ctx.fillRect(-16,-58,32,72);
+  ctx.strokeStyle=rim; ctx.lineWidth=1.2; ctx.strokeRect(-16,-58,32,72);
+  // cracked black plate — painterly
+  ctx.strokeStyle=isYou?"rgba(80,40,20,.55)":"rgba(30,50,70,.5)";
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(-10,-40); ctx.lineTo(-2,-20); ctx.lineTo(-8,0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(8,-48); ctx.lineTo(4,-28); ctx.lineTo(12,-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-14,-10); ctx.lineTo(2,8); ctx.stroke();
+  if(isYou){ ctx.fillStyle=scarf; ctx.fillRect(-18,-64,36,8); }
+  else { ctx.fillStyle=rim; ctx.fillRect(-20,-64,40,6); }
+  if(isYou){
+    ctx.beginPath(); ctx.ellipse(0,-86,18,22,0,0,6.28); ctx.fillStyle=plate; ctx.fill(); ctx.strokeStyle=rim; ctx.stroke();
+  } else {
+    ctx.fillStyle=plate; ctx.fillRect(-20,-108,40,48); ctx.strokeStyle=rim; ctx.lineWidth=1.4; ctx.strokeRect(-20,-108,40,48);
+    ctx.fillStyle="#0a1018"; ctx.fillRect(-14,-98,28,18);
+  }
+  ctx.fillStyle=eye; ctx.shadowColor=eye; ctx.shadowBlur=10;
+  ctx.fillRect(isYou?-8:-10, isYou?-90:-94, isYou?16:20, 4);
+  ctx.shadowBlur=0;
+  ctx.fillStyle="#2a1810"; ctx.fillRect(-6,-74,12,6);
+  const hx=22, hy=handY;
+  ctx.strokeStyle=plate; ctx.lineWidth=7; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(6,-46); ctx.lineTo(hx,hy); ctx.stroke();
+  ctx.fillStyle=rim; ctx.beginPath(); ctx.arc(hx,hy,5,0,6.28); ctx.fill();
+  drawBlade(ctx,hx,hy,bladeAng,bladeLen,steel,glow);
+  ctx.restore();
+}
+function burst(x,y,col){
+  for(let i=0;i<10;i++) state.sparks.push({x,y,vx:(Math.random()-.5)*6,vy:-Math.random()*5-1,life:18+Math.random()*10,col});
+}
+function drawSparks(ctx){
+  state.sparks=state.sparks.filter(s=>s.life>0);
+  state.sparks.forEach(s=>{
+    s.x+=s.vx; s.y+=s.vy; s.vy+=.18; s.life--;
+    ctx.fillStyle=s.col; ctx.globalAlpha=Math.max(0,s.life/20);
+    ctx.fillRect(s.x,s.y,2,2);
+  });
+  ctx.globalAlpha=1;
+}
+function drawScene(canvas, youP, foeP, t){
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  const d=window.devicePixelRatio||1;
+  const w=canvas.width/d, h=canvas.height/d;
+  lastW=w; lastH=h;
+  ctx.setTransform(d,0,0,d,0,0);
+  if(state.shake>0){
+    const sx=(Math.random()-0.5)*state.shake, sy=(Math.random()-0.5)*state.shake;
+    ctx.translate(sx,sy);
+    state.shake*=0.78;
+    if(state.shake<0.4) state.shake=0;
+  }
+  hall(ctx,w,h);
+  const ground=h*0.72;
+  const youX=w*0.28, foeX=w*0.72;
+  drawFencer(ctx,youX,ground,1,youP,true,t);
+  drawFencer(ctx,foeX,ground,-1,foeP,false,t);
+  drawSparks(ctx);
+}
+let t0=performance.now();
+function loop(now){
+  const t=(now-t0)/1000;
+  if($("splash").classList.contains("on")) drawScene($("splashC"),"salute","salute",t);
+  if($("duel").classList.contains("on")) drawScene($("c"),state.youPose,state.foePose,t);
+  if($("result").classList.contains("on")) drawScene($("resC"), state.hp>=state.foe?"salute":"hit", state.hp>=state.foe?"hit":"salute", t);
+  raf=requestAnimationFrame(loop);
+}
+function startFight(){
+  const b=bot();
+  state.fought=state.ladder;
+  state.hp=100;state.foe=100;state.time=90;state.live=true;state.windowOpen=false;state.pending=null;state.answered=false;state.exchanges=0;
+  state.youPose="salute";state.foePose="salute";state.sparks=[];state.fake=null;
+  $("youLabel").textContent=state.name; $("foeLabel").textContent=b.name;
+  paintHUD(); say("Salute. Then read the blade."); show("duel");
+  clearInterval(tick); clearTimeout(tellTimer); clearTimeout(feintTimer);
+  tick=setInterval(()=>{if(!state.live)return;state.time-=1;$("timer").textContent=fmt(state.time);if(state.time<=0)endBout(state.hp>=state.foe);},1000);
+  setTimeout(()=>{say("Watch the blade. Do not guess."); setTimeout(openTell,700);},900);
+}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");}
+function openTell(){
+  if(!state.live)return;
+  const b=bot();
+  const incoming=Math.random()<b.biasP?b.bias:SKILLS[Math.floor(Math.random()*3)].id;
+  const lie=state.exchanges>=2 && Math.random()<(b.feintP||0);
+  const fake=lie?otherSkill(incoming):null;
+  state.pending=incoming; state.fake=fake; state.windowOpen=true; state.answered=false;
+  state.foePose=fake||incoming; state.youPose="guard";
+  say(tellLine(fake||incoming),"danger");
+  $("skills").classList.add("hot");
+  const bar=$("windowBar"); bar.style.transition="none"; bar.style.width="0%"; void bar.offsetWidth;
+  const ms=state.exchanges<2?1200:850;
+  bar.style.transition="width "+ms+"ms linear"; bar.style.width="100%";
+  $("window").classList.add("live");
+  clearTimeout(feintTimer);
+  if(fake){
+    const snap=Math.min(420, Math.floor(ms*0.48));
+    feintTimer=setTimeout(()=>{
+      if(!state.live||state.answered||!state.windowOpen)return;
+      state.foePose=incoming;
+      say(tellLine(incoming),"danger");
+      beep(300,45);
+      burst(lastW*0.70,lastH*0.46,"#7ec8ff");
+    },snap);
+  }
+  tellTimer=setTimeout(()=>{if(!state.live||state.answered)return;resolve(null,incoming);},ms);
+}
+function answer(id){
+  if(!state.live)return;
+  const mine=SKILLS.find(s=>s.id===id);
+  if(!mine)return;
+  if(state.windowOpen&&!state.answered){
+    state.answered=true; state.windowOpen=false;
+    clearTimeout(tellTimer); clearTimeout(feintTimer); resolve(mine,state.pending);
+    return;
+  }
+  if(!state.windowOpen) resolve(mine,null);
+}
+function resolve(mine,theirs){
+  state.windowOpen=false; $("skills").classList.remove("hot"); $("window").classList.remove("live");
+  clearTimeout(feintTimer);
+  const boughtFake=!!(state.fake && mine && mine.beats===state.fake && mine.beats!==theirs);
+  let dmgYou=0, dmgFoe=0, line="";
+  if(!theirs){ dmgYou=8; line="No tell. You eat steel."; state.youPose="hit"; state.foePose="lunge"; beep(120,140); float(-8,false); }
+  else if(!mine){ dmgYou=theirs==="opening"?22:theirs==="line"?14:6; line="Late. "+theirs+" lands."; state.youPose="hit"; state.foePose="lunge"; beep(130,120); float(-dmgYou,false); }
+  else {
+    state.youPose=mine.pose; state.foePose=theirs;
+    if(mine.beats===theirs){ dmgFoe=mine.dmg||12; line=state.fake?"You waited. The lie dies.":mine.flavor+" Clean."; beep(520,80,"triangle"); float(dmgFoe,true); burst(lastW*0.5,lastH*0.50,"#e0b36a"); }
+    else if(theirs===mine.id){ line="Clash. Steel meets steel."; beep(220,60); }
+    else { dmgYou=theirs==="opening"?18:theirs==="line"?12:5; line=boughtFake?"Feint. You bought the first blade.":"Wrong read. "+theirs+" hits."; state.youPose="hit"; beep(140,100); float(-dmgYou,false); }
+  }
+  state.fake=null;
+  state.hp=Math.max(0,state.hp-dmgYou); state.foe=Math.max(0,state.foe-dmgFoe);
+  if(dmgYou>0) state.shake=Math.min(14,6+dmgYou*0.35);
+  else if(dmgFoe>0) state.shake=Math.min(10,4+dmgFoe*0.2);
+  else if(line.indexOf("Clash")===0) state.shake=5;
+  paintHUD(); say(line, dmgFoe>dmgYou?"good":dmgYou?"danger":"");
+  if(navigator.vibrate)navigator.vibrate(dmgYou>10?40:12);
+  state.exchanges+=1;
+  if(state.hp<=0||state.foe<=0){endBout(state.foe<=0&&state.hp>=state.foe);return;}
+  tellTimer=setTimeout(()=>{ state.youPose="guard"; state.foePose="guard"; tellTimer=setTimeout(openTell,260+Math.random()*240); },520);
+}
+function endBout(win){
+  state.live=false; clearInterval(tick); clearTimeout(tellTimer); clearTimeout(feintTimer);
+  const fought=BOTS[Math.min(state.fought,BOTS.length-1)];
+  if(win){state.wins+=1; if(state.ladder<BOTS.length-1)state.ladder+=1;} else state.losses+=1;
+  save();
+  $("resTitle").textContent=win?"Victory":"Defeat";
+  $("resMask").textContent=win?fought.maskWin:fought.maskLose;
+  $("resLine").textContent=win?(fought.name+" drops. "+bot().name+" is waiting."):(fought.name+" is still standing.");
+  $("fightAgain").textContent=win?"Fight "+bot().name:"Fight again";
+  beep(win?660:140,180,win?"triangle":"sawtooth");
+  show("result");
+}
+$("playNow").onclick=()=>{if(ctxAudio&&ctxAudio.resume)ctxAudio.resume();startFight();};
+$("fightAgain").onclick=()=>startFight();
+$("againSame").onclick=()=>{state.ladder=state.fought||0; startFight();};
+document.querySelectorAll("#skills button").forEach(btn=>btn.onclick=()=>answer(btn.dataset.s));
+document.addEventListener("keydown",e=>{
+  if(e.repeat)return;
+  const map={a:"line",s:"measure",d:"opening",q:"line",w:"measure",e:"opening"};
+  const id=map[e.key.toLowerCase()]; if(id) answer(id);
+});
+window.addEventListener("resize",sizeCanvas);
+sizeCanvas();
+raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
