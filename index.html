@@ -61,7 +61,9 @@ h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
       <p class="kicker">Burning Hall &middot; Qu&eacute;bec</p>
       <h1>Estoc</h1>
       <p class="lede">Read the blade. Hit the window. Miss and you eat steel.</p>
+      <p class="lede" id="dawnLine">Dawn 1. The hall is cold.</p>
       <button class="btn solid" id="playNow" type="button">Salute Newsteel</button>
+      <button class="btn ghost" id="copyReport" type="button">Copy 14-day report</button>
     </div>
   </section>
   <section class="screen" id="duel">
@@ -76,7 +78,7 @@ h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
     </div>
     <div class="hud">
       <p class="tell" id="tell">Watch the blade.</p>
-      <div class="window"><i id="windowBar"></i></div>
+      <div class="window" id="window"><i id="windowBar"></i></div>
       <p class="hint">A LINE &middot; S MEASURE &middot; D OPENING</p>
       <div class="skills" id="skills">
         <button type="button" data-s="line"><b>Line</b><small>Cuts Opening</small></button>
@@ -94,6 +96,7 @@ h1{font-weight:500;font-size:56px;letter-spacing:.06em;margin:6px 0 8px}
       <p class="lede" id="resLine"></p>
       <button class="btn solid" id="fightAgain" type="button">Fight next</button>
       <button class="btn ghost" id="againSame" type="button">Same steel</button>
+      <button class="btn ghost" id="copyReport2" type="button">Copy 14-day report</button>
     </div>
   </section>
 </div>
@@ -114,9 +117,10 @@ const BOTS=[
   {name:"Mass",bias:"measure",biasP:.77,feintP:.20,maskWin:"The strip is smaller than you thought.",maskLose:"Weight wins the quiet ones."},
   {name:"Black Estoc",bias:"opening",biasP:.66,feintP:.40,maskWin:"Same scarf. Colder eyes.",maskLose:"You already lost this bout once."}
 ];
-const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,fake:null,answered:false,exchanges:0,fought:0,
+const J7="2026-09-04";
+const state={name:"Linen",ladder:0,wins:0,losses:0,hp:100,foe:100,time:90,live:false,windowOpen:false,pending:null,fake:null,answered:false,exchanges:0,fought:0,bouts:0,tid:"",j1:"",last:"",days:[],
   youPose:"salute",foePose:"salute",shake:0,sparks:[],dust:[]};
-try{const raw=JSON.parse(localStorage.getItem("estoc.v10")||"null");if(raw){state.name=raw.name||"Linen";state.ladder=raw.ladder||0;state.wins=raw.wins||0;state.losses=raw.losses||0;}}catch(e){}
+try{const raw=JSON.parse(localStorage.getItem("estoc.v10")||"null");if(raw){state.name=raw.name||"Linen";state.ladder=raw.ladder||0;state.wins=raw.wins||0;state.losses=raw.losses||0;state.bouts=raw.bouts||0;state.tid=raw.tid||"";state.j1=raw.j1||"";state.last=raw.last||"";state.days=Array.isArray(raw.days)?raw.days:[];}}catch(e){}
 let tick=null,tellTimer=null,feintTimer=null,ctxAudio=null,raf=0,lastW=320,lastH=420;
 const $=id=>document.getElementById(id);
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
@@ -124,7 +128,53 @@ function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
 function tellLine(id){return id==="line"?"Point advances.":id==="measure"?"Guard holds.":"Blade lifts high.";}
 function otherSkill(id){const ids=SKILLS.map(s=>s.id).filter(x=>x!==id);return ids[Math.floor(Math.random()*ids.length)];}
 function bot(){return BOTS[Math.min(state.ladder,BOTS.length-1)];}
-function save(){localStorage.setItem("estoc.v10",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses}));}
+function save(){localStorage.setItem("estoc.v10",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses,bouts:state.bouts,tid:state.tid,j1:state.j1,last:state.last,days:state.days}));}
+function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function stampDawn(){
+  const today=dayKey();
+  if(!state.tid) state.tid="Linen-"+Math.random().toString(36).slice(2,6).toUpperCase();
+  if(!state.j1) state.j1=today;
+  if(state.days.indexOf(today)<0) state.days.push(today);
+  state.last=today;
+  save();
+  const n=state.days.length;
+  const el=$("dawnLine");
+  if(el) el.textContent=n<=1?"Dawn 1. The hall is cold.":"Dawn "+n+". The hall remembers.";
+}
+function reportText(){
+  const j7=state.days.indexOf(J7)>=0?"yes "+J7:(dayKey()<J7?"not yet":"no");
+  return [
+    "Estoc 14-day report",
+    "tester id: "+(state.tid||"—"),
+    "J1 opened: "+(state.j1||"—"),
+    "days opened: "+state.days.length,
+    "days: "+(state.days.join(", ")||"—"),
+    "last open: "+(state.last||"—"),
+    "J7 returned without a ping: "+j7,
+    "sends: 0",
+    "bouts: "+(state.bouts||0),
+    "wins-losses: "+state.wins+"-"+state.losses,
+    "rust: not coded (J14 lock)",
+    "why they left:"
+  ].join("\n");
+}
+function copyReport(btn){
+  const text=reportText();
+  const done=()=>{if(btn){const old=btn.textContent;btn.textContent="Copied. Send to Carl.";setTimeout(()=>{btn.textContent=old;},1600);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement("textarea");
+  ta.value=text;document.body.appendChild(ta);ta.select();
+  try{document.execCommand("copy");}catch(e){}
+  document.body.removeChild(ta);done();
+}
+function armWindow(on){
+  const w=$("window")||document.querySelector(".window");
+  if(w) w.classList.toggle("live",!!on);
+}
 function paintHUD(){$("youHp").style.width=clamp(state.hp,0,100)+"%";$("foeHp").style.width=clamp(state.foe,0,100)+"%";$("timer").textContent=fmt(state.time);}
 function say(text,cls){$("tell").textContent=text;$("tell").className="tell "+(cls||"");}
 function float(n,good){const el=$("floater");el.textContent=(n>0?"+":"")+n;el.className="floater on "+(good?"good":"bad");setTimeout(()=>el.classList.remove("on"),560);}
@@ -173,7 +223,6 @@ function drawFencer(ctx, x, y, facing, pose, isYou, t){
   ctx.fillRect(-9,8,16,36); ctx.fillRect(4,8,12,38);
   ctx.fillRect(-16,-58,32,72);
   ctx.strokeStyle=rim; ctx.lineWidth=1.2; ctx.strokeRect(-16,-58,32,72);
-  // cracked black plate — painterly
   ctx.strokeStyle=isYou?"rgba(80,40,20,.55)":"rgba(30,50,70,.5)";
   ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(-10,-40); ctx.lineTo(-2,-20); ctx.lineTo(-8,0); ctx.stroke();
@@ -242,7 +291,7 @@ function startFight(){
   const b=bot();
   state.fought=state.ladder;
   state.hp=100;state.foe=100;state.time=90;state.live=true;state.windowOpen=false;state.pending=null;state.answered=false;state.exchanges=0;
-  state.youPose="salute";state.foePose="salute";state.sparks=[];state.fake=null;
+  state.youPose="salute";state.foePose="salute";state.sparks=[];state.fake=null;state.bouts+=1;save();
   $("youLabel").textContent=state.name; $("foeLabel").textContent=b.name;
   paintHUD(); say("Salute. Then read the blade."); show("duel");
   clearInterval(tick); clearTimeout(tellTimer); clearTimeout(feintTimer);
@@ -263,7 +312,7 @@ function openTell(){
   const bar=$("windowBar"); bar.style.transition="none"; bar.style.width="0%"; void bar.offsetWidth;
   const ms=state.exchanges<2?1200:850;
   bar.style.transition="width "+ms+"ms linear"; bar.style.width="100%";
-  $("window").classList.add("live");
+  armWindow(true);
   clearTimeout(feintTimer);
   if(fake){
     const snap=Math.min(420, Math.floor(ms*0.48));
@@ -289,7 +338,7 @@ function answer(id){
   if(!state.windowOpen) resolve(mine,null);
 }
 function resolve(mine,theirs){
-  state.windowOpen=false; $("skills").classList.remove("hot"); $("window").classList.remove("live");
+  state.windowOpen=false; $("skills").classList.remove("hot"); armWindow(false);
   clearTimeout(feintTimer);
   const boughtFake=!!(state.fake && mine && mine.beats===state.fake && mine.beats!==theirs);
   let dmgYou=0, dmgFoe=0, line="";
@@ -327,6 +376,9 @@ function endBout(win){
 $("playNow").onclick=()=>{if(ctxAudio&&ctxAudio.resume)ctxAudio.resume();startFight();};
 $("fightAgain").onclick=()=>startFight();
 $("againSame").onclick=()=>{state.ladder=state.fought||0; startFight();};
+if($("copyReport")) $("copyReport").onclick=()=>copyReport($("copyReport"));
+if($("copyReport2")) $("copyReport2").onclick=()=>copyReport($("copyReport2"));
+stampDawn();
 document.querySelectorAll("#skills button").forEach(btn=>btn.onclick=()=>answer(btn.dataset.s));
 document.addEventListener("keydown",e=>{
   if(e.repeat)return;
