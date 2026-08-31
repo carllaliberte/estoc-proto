@@ -1,7 +1,6 @@
-# Estoc
+# ARCHIVÉ
 
-Raise. Send.
+Estoc n'est plus le produit actif.
+Ne pas forker. Ne pas étendre.
 
-A daily eight-minute yard. One champion. Three memories.
-
-https://carllaliberte.github.io/estoc-proto/
+Rail vivant : [situs-protocol](https://github.com/carllaliberte/situs-protocol)
