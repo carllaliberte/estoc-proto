@@ -125,6 +125,25 @@ function tellLine(id){return id==="line"?"Point advances.":id==="measure"?"Guard
 function otherSkill(id){const ids=SKILLS.map(s=>s.id).filter(x=>x!==id);return ids[Math.floor(Math.random()*ids.length)];}
 function bot(){return BOTS[Math.min(state.ladder,BOTS.length-1)];}
 function save(){try{localStorage.setItem("estoc.v10",JSON.stringify({name:state.name,ladder:state.ladder,wins:state.wins,losses:state.losses,bouts:state.bouts,tid:state.tid,j1:state.j1,last:state.last,days:state.days}));}catch(e){}}
+function shiftKey(key,n){
+  const d=new Date(key+"T00:00:00Z");
+  d.setUTCDate(d.getUTCDate()+n);
+  return d.toISOString().slice(0,10);
+}
+function rustOf(){
+  if(!state.j1) return 0;
+  const have=new Set(state.days);
+  let n=0,k=state.j1,end=state.last||state.j1;
+  while(k<=end){ if(!have.has(k)) n++; if(k===end) break; k=shiftKey(k,1); if(n>400) break; }
+  return n;
+}
+function streakOf(){
+  if(!state.last) return 0;
+  const have=new Set(state.days);
+  let n=0,k=state.last;
+  while(have.has(k)){ n++; k=shiftKey(k,-1); if(n>400) break; }
+  return n;
+}
 function stampDawn(){
   const d=new Date(); const key=d.toISOString().slice(0,10);
   if(!state.j1) state.j1=key;
@@ -132,11 +151,16 @@ function stampDawn(){
   if(!state.days.includes(key)) state.days.push(key);
   if(!state.tid) state.tid="T"+Math.floor(Math.random()*9000+1000);
   save();
-  const n=state.days.length;
-  $("dawnLine").textContent="Dawn "+n+". "+(n===1?"The hall is cold.":n<4?"The yard knows your step.":"The mask waits.");
+  const n=state.days.length, rust=rustOf(), streak=streakOf();
+  let line="Dawn "+n+". ";
+  if(rust>0) line+="Rust "+rust+". The hall cooled while you were gone.";
+  else if(n===1) line+="The hall is cold.";
+  else if(streak>=3) line+="Streak "+streak+". The yard knows your step.";
+  else line+="The yard knows your step.";
+  $("dawnLine").textContent=line;
 }
 function copyReport(btn){
-  const text=["tester:"+(state.tid||"?"),"j1:"+(state.j1||"?"),"days:"+state.days.length,"bouts:"+state.bouts,"wins:"+state.wins,"losses:"+state.losses,"ladder:"+state.ladder].join(" | ");
+  const text=["tester:"+(state.tid||"?"),"j1:"+(state.j1||"?"),"days:"+state.days.length,"streak:"+streakOf(),"rust:"+rustOf(),"bouts:"+state.bouts,"wins:"+state.wins,"losses:"+state.losses,"ladder:"+state.ladder].join(" | ");
   const done=()=>{if(btn){const o=btn.textContent;btn.textContent="Copied";setTimeout(()=>btn.textContent=o,1200);}};
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
   else fallbackCopy(text,done);
